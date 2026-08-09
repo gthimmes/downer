@@ -29,6 +29,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         SetUpEditor();
+        SetUpEditingBehaviors();
         SetUpPreview();
 
         Loaded += OnWindowLoaded;
@@ -79,6 +80,17 @@ public partial class MainWindow : Window
         Shortcut(MenuViewEditor, Key.D1, cmd, () => SetViewMode(ViewMode.EditorOnly));
         Shortcut(MenuViewSplit, Key.D2, cmd, () => SetViewMode(ViewMode.Split));
         Shortcut(MenuViewPreview, Key.D3, cmd, () => SetViewMode(ViewMode.PreviewOnly));
+
+        Shortcut(MenuBold, Key.B, cmd, () => OnBold(null, null!));
+        Shortcut(MenuItalic, Key.I, cmd, () => OnItalic(null, null!));
+        Shortcut(MenuStrike, Key.X, cmd | KeyModifiers.Shift, () => OnStrikethrough(null, null!));
+        Shortcut(MenuInlineCode, Key.C, cmd | KeyModifiers.Shift, () => OnInlineCode(null, null!));
+        Shortcut(MenuLink, Key.K, cmd, () => OnInsertLink(null, null!));
+        Shortcut(MenuImage, Key.K, cmd | KeyModifiers.Shift, () => OnInsertImage(null, null!));
+        Shortcut(MenuBullet, Key.D8, cmd | KeyModifiers.Shift, () => OnBulletList(null, null!));
+        Shortcut(MenuOrdered, Key.D7, cmd | KeyModifiers.Shift, () => OnOrderedList(null, null!));
+        Shortcut(MenuTask, Key.D9, cmd | KeyModifiers.Shift, () => OnTaskList(null, null!));
+        Shortcut(MenuQuote, Key.Q, cmd | KeyModifiers.Shift, () => OnBlockquote(null, null!));
     }
 
     private void Shortcut(MenuItem item, Key key, KeyModifiers modifiers, Action action)

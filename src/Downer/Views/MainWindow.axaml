@@ -30,12 +30,80 @@
         <Separator />
         <MenuItem Header="Select _All" Click="OnSelectAll" InputGesture="Ctrl+A" />
       </MenuItem>
+      <MenuItem Header="F_ormat">
+        <MenuItem x:Name="MenuBold" Header="_Bold" Click="OnBold" />
+        <MenuItem x:Name="MenuItalic" Header="_Italic" Click="OnItalic" />
+        <MenuItem x:Name="MenuStrike" Header="_Strikethrough" Click="OnStrikethrough" />
+        <MenuItem x:Name="MenuInlineCode" Header="Inline _Code" Click="OnInlineCode" />
+        <Separator />
+        <MenuItem Header="_Heading">
+          <MenuItem Header="Heading _1" Click="OnHeading" Tag="1" />
+          <MenuItem Header="Heading _2" Click="OnHeading" Tag="2" />
+          <MenuItem Header="Heading _3" Click="OnHeading" Tag="3" />
+          <MenuItem Header="Heading _4" Click="OnHeading" Tag="4" />
+          <MenuItem Header="Heading _5" Click="OnHeading" Tag="5" />
+          <MenuItem Header="Heading _6" Click="OnHeading" Tag="6" />
+          <Separator />
+          <MenuItem Header="_Clear Heading" Click="OnHeading" Tag="0" />
+        </MenuItem>
+        <Separator />
+        <MenuItem x:Name="MenuBullet" Header="Bullet _List" Click="OnBulletList" />
+        <MenuItem x:Name="MenuOrdered" Header="_Numbered List" Click="OnOrderedList" />
+        <MenuItem x:Name="MenuTask" Header="_Task List" Click="OnTaskList" />
+        <MenuItem x:Name="MenuQuote" Header="Block_quote" Click="OnBlockquote" />
+      </MenuItem>
+      <MenuItem Header="_Insert">
+        <MenuItem x:Name="MenuLink" Header="_Link…" Click="OnInsertLink" />
+        <MenuItem x:Name="MenuImage" Header="I_mage…" Click="OnInsertImage" />
+        <Separator />
+        <MenuItem Header="_Table" Click="OnInsertTable" />
+        <MenuItem Header="Code _Block" Click="OnInsertCodeBlock" />
+        <MenuItem Header="Horizontal _Rule" Click="OnInsertRule" />
+      </MenuItem>
       <MenuItem Header="_View">
         <MenuItem x:Name="MenuViewEditor" Header="_Editor Only" Click="OnViewEditor" ToggleType="Radio" />
         <MenuItem x:Name="MenuViewSplit" Header="_Split" Click="OnViewSplit" ToggleType="Radio" IsChecked="True" />
         <MenuItem x:Name="MenuViewPreview" Header="_Preview Only" Click="OnViewPreview" ToggleType="Radio" />
       </MenuItem>
     </Menu>
+
+    <Border DockPanel.Dock="Top"
+            BorderThickness="0,0,0,1"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            Padding="6,3">
+      <StackPanel Orientation="Horizontal" Spacing="2">
+        <StackPanel.Styles>
+          <Style Selector="Button">
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="MinWidth" Value="30" />
+            <Setter Property="Padding" Value="6,3" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+          </Style>
+        </StackPanel.Styles>
+        <Button Content="B" FontWeight="Bold" Click="OnBold" ToolTip.Tip="Bold" />
+        <Button Content="I" FontStyle="Italic" Click="OnItalic" ToolTip.Tip="Italic" />
+        <Button Click="OnStrikethrough" ToolTip.Tip="Strikethrough">
+          <TextBlock Text="S" TextDecorations="Strikethrough" />
+        </Button>
+        <Button Content="&lt;/&gt;" Click="OnInlineCode" ToolTip.Tip="Inline code" />
+        <Separator Width="1" Height="20" Margin="4,0" />
+        <Button Content="H1" Click="OnHeading" Tag="1" ToolTip.Tip="Heading 1" />
+        <Button Content="H2" Click="OnHeading" Tag="2" ToolTip.Tip="Heading 2" />
+        <Button Content="H3" Click="OnHeading" Tag="3" ToolTip.Tip="Heading 3" />
+        <Separator Width="1" Height="20" Margin="4,0" />
+        <Button Content="•—" Click="OnBulletList" ToolTip.Tip="Bullet list" />
+        <Button Content="1." Click="OnOrderedList" ToolTip.Tip="Numbered list" />
+        <Button Content="☑" Click="OnTaskList" ToolTip.Tip="Task list" />
+        <Button Content="❝" Click="OnBlockquote" ToolTip.Tip="Blockquote" />
+        <Separator Width="1" Height="20" Margin="4,0" />
+        <Button Content="🔗" Click="OnInsertLink" ToolTip.Tip="Insert link" />
+        <Button Content="🖼" Click="OnInsertImage" ToolTip.Tip="Insert image" />
+        <Button Content="▦" Click="OnInsertTable" ToolTip.Tip="Insert table" />
+        <Button Content="{}" Click="OnInsertCodeBlock" ToolTip.Tip="Insert code block" />
+        <Button Content="—" Click="OnInsertRule" ToolTip.Tip="Horizontal rule" />
+      </StackPanel>
+    </Border>
 
     <Border DockPanel.Dock="Bottom"
             BorderThickness="0,1,0,0"
