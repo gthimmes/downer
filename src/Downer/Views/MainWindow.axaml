@@ -18,6 +18,8 @@
         <MenuItem x:Name="MenuSave" Header="_Save" Click="OnSave" />
         <MenuItem x:Name="MenuSaveAs" Header="Save _As…" Click="OnSaveAs" />
         <Separator />
+        <MenuItem Header="_Export as HTML…" Click="OnExportHtml" />
+        <Separator />
         <MenuItem Header="E_xit" Click="OnExit" />
       </MenuItem>
       <MenuItem Header="_Edit">

@@ -109,6 +109,37 @@ public partial class MainWindow
         return await WriteToFileAsync(path);
     }
 
+    private void OnExportHtml(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => _ = ExportHtmlAsync();
+
+    private async Task ExportHtmlAsync()
+    {
+        var baseName = _currentFilePath is null
+            ? "Untitled"
+            : Path.GetFileNameWithoutExtension(_currentFilePath);
+
+        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Export as HTML",
+            SuggestedFileName = baseName + ".html",
+            DefaultExtension = "html",
+            FileTypeChoices = new[] { HtmlFileType },
+        });
+
+        var path = file?.TryGetLocalPath();
+        if (path is null)
+            return;
+
+        try
+        {
+            var html = Core.HtmlExporter.ToHtmlDocument(Editor.Text, baseName);
+            await File.WriteAllTextAsync(path, html);
+        }
+        catch (Exception ex)
+        {
+            await AppDialogs.InfoAsync(this, "Could not export HTML", ex.Message);
+        }
+    }
+
     private async Task<bool> WriteToFileAsync(string path)
     {
         try
