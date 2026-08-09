@@ -29,6 +29,9 @@
         <MenuItem Header="_Paste" Click="OnPaste" InputGesture="Ctrl+V" />
         <Separator />
         <MenuItem Header="Select _All" Click="OnSelectAll" InputGesture="Ctrl+A" />
+        <Separator />
+        <MenuItem x:Name="MenuFind" Header="_Find…" Click="OnFind" />
+        <MenuItem x:Name="MenuReplace" Header="R_eplace…" Click="OnReplace" />
       </MenuItem>
       <MenuItem Header="F_ormat">
         <MenuItem x:Name="MenuBold" Header="_Bold" Click="OnBold" />
@@ -64,6 +67,13 @@
         <MenuItem x:Name="MenuViewEditor" Header="_Editor Only" Click="OnViewEditor" ToggleType="Radio" />
         <MenuItem x:Name="MenuViewSplit" Header="_Split" Click="OnViewSplit" ToggleType="Radio" IsChecked="True" />
         <MenuItem x:Name="MenuViewPreview" Header="_Preview Only" Click="OnViewPreview" ToggleType="Radio" />
+        <Separator />
+        <MenuItem x:Name="MenuWordWrap" Header="_Word Wrap" Click="OnToggleWordWrap" ToggleType="CheckBox" IsChecked="True" />
+        <MenuItem x:Name="MenuLineNumbers" Header="Line _Numbers" Click="OnToggleLineNumbers" ToggleType="CheckBox" IsChecked="True" />
+        <Separator />
+        <MenuItem x:Name="MenuZoomIn" Header="Zoom _In" Click="OnZoomIn" />
+        <MenuItem x:Name="MenuZoomOut" Header="Zoom _Out" Click="OnZoomOut" />
+        <MenuItem x:Name="MenuZoomReset" Header="_Reset Zoom" Click="OnZoomReset" />
       </MenuItem>
     </Menu>
 

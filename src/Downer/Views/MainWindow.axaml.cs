@@ -31,6 +31,7 @@ public partial class MainWindow : Window
         SetUpEditor();
         SetUpEditingBehaviors();
         SetUpPreview();
+        SetUpViewOptions();
 
         Loaded += OnWindowLoaded;
     }
@@ -91,6 +92,12 @@ public partial class MainWindow : Window
         Shortcut(MenuOrdered, Key.D7, cmd | KeyModifiers.Shift, () => OnOrderedList(null, null!));
         Shortcut(MenuTask, Key.D9, cmd | KeyModifiers.Shift, () => OnTaskList(null, null!));
         Shortcut(MenuQuote, Key.Q, cmd | KeyModifiers.Shift, () => OnBlockquote(null, null!));
+
+        Shortcut(MenuFind, Key.F, cmd, () => OpenSearch(replaceMode: false));
+        Shortcut(MenuReplace, Key.H, cmd, () => OpenSearch(replaceMode: true));
+        Shortcut(MenuZoomIn, Key.OemPlus, cmd, () => OnZoomIn(null, null!));
+        Shortcut(MenuZoomOut, Key.OemMinus, cmd, () => OnZoomOut(null, null!));
+        Shortcut(MenuZoomReset, Key.D0, cmd, () => OnZoomReset(null, null!));
     }
 
     private void Shortcut(MenuItem item, Key key, KeyModifiers modifiers, Action action)

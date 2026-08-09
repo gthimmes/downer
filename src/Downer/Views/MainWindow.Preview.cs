@@ -43,6 +43,7 @@ public partial class MainWindow
     {
         if (_viewMode != ViewMode.EditorOnly)
             Preview.Markdown = Editor.Text;
+        UpdateCountsStatus();
     }
 
     // ---- Scroll sync (editor -> preview, proportional) ----
