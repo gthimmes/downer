@@ -25,9 +25,12 @@ public sealed class SettingsService
     public static string DefaultDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Downer");
 
+    /// <summary>Redirects settings for UI tests so they never touch the user's real profile.</summary>
+    public static string? OverrideDirectory { get; set; }
+
     public SettingsService(string? directory = null)
     {
-        _filePath = Path.Combine(directory ?? DefaultDirectory, "settings.json");
+        _filePath = Path.Combine(directory ?? OverrideDirectory ?? DefaultDirectory, "settings.json");
     }
 
     public void Load()

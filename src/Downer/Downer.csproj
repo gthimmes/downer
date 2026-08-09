@@ -10,6 +10,9 @@
     <Version>1.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Downer.UiTests" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.19" />
     <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.4.1" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.19" />
