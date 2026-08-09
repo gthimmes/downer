@@ -11,7 +11,9 @@ public sealed record ContinuationEdit(int ReplaceStart, int ReplaceLength, strin
 /// </summary>
 public static partial class AutoListContinuation
 {
-    [GeneratedRegex(@"^(?<indent>\s*)(?:(?<task>(?<taskchar>[-*+])[ \t]+\[[ xX]\][ \t])|(?<bullet>(?<bulletchar>[-*+])[ \t])|(?<ordered>(?<num>\d+)(?<numsep>[.)])[ \t])|(?<quote>>[ \t]?))")]
+    // Quantifiers kept in lockstep with MarkdownFormatter.ListPrefixRegex/QuoteRegex
+    // so Enter-continuation and toggle-formatting recognize the same lines.
+    [GeneratedRegex(@"^(?<indent>\s*)(?:(?<task>(?<taskchar>[-*+])[ \t]+\[[ xX]\][ \t]?)|(?<bullet>(?<bulletchar>[-*+])[ \t]+)|(?<ordered>(?<num>\d+)(?<numsep>[.)])[ \t]+)|(?<quote>>[ \t]?))")]
     private static partial Regex MarkerRegex();
 
     /// <summary>Returns the edit to apply for Enter at <paramref name="caretOffset"/>, or null to let the editor handle it.</summary>
@@ -19,13 +21,8 @@ public static partial class AutoListContinuation
     {
         caretOffset = Math.Clamp(caretOffset, 0, text.Length);
 
-        var lineStart = text.LastIndexOf('\n', Math.Max(0, caretOffset - 1));
-        lineStart = lineStart < 0 ? 0 : lineStart + 1;
-
-        var lineEnd = caretOffset < text.Length ? text.IndexOf('\n', caretOffset) : -1;
-        lineEnd = lineEnd < 0 ? text.Length : lineEnd;
-        if (lineEnd > lineStart && text[lineEnd - 1] == '\r')
-            lineEnd--;
+        var lineStart = TextLines.LineStart(text, caretOffset);
+        var lineEnd = TextLines.LineEnd(text, caretOffset, lineStart);
 
         var beforeCaret = text[lineStart..caretOffset];
         var match = MarkerRegex().Match(beforeCaret);
@@ -44,11 +41,16 @@ public static partial class AutoListContinuation
         else if (match.Groups["bullet"].Success)
             next = $"{indent}{match.Groups["bulletchar"].Value} ";
         else if (match.Groups["ordered"].Success)
-            next = $"{indent}{int.Parse(match.Groups["num"].Value) + 1}{match.Groups["numsep"].Value} ";
+        {
+            // Absurdly large numbers fall back to the editor's default Enter.
+            if (!long.TryParse(match.Groups["num"].Value, out var number) || number == long.MaxValue)
+                return null;
+            next = $"{indent}{number + 1}{match.Groups["numsep"].Value} ";
+        }
         else
             next = $"{indent}> ";
 
-        var insert = "\n" + next;
+        var insert = TextLines.DetectNewline(text) + next;
         return new ContinuationEdit(caretOffset, 0, insert, caretOffset + insert.Length);
     }
 }

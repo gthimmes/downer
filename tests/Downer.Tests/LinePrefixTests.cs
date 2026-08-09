@@ -113,6 +113,32 @@ public class LinePrefixTests
     }
 
     [Fact]
+    public void Caret_at_start_of_leading_newline_document_does_not_crash()
+    {
+        var r = MarkdownFormatter.ToggleLinePrefix("\nfoo", 0, 0, LinePrefixKind.Bullet);
+
+        Assert.Equal("- \nfoo", r.Text);
+    }
+
+    [Fact]
+    public void Empty_document_starts_a_list()
+    {
+        var r = MarkdownFormatter.ToggleLinePrefix("", 0, 0, LinePrefixKind.Bullet);
+
+        Assert.Equal("- ", r.Text);
+        Assert.Equal(0, r.SelectionStart);
+        Assert.Equal(2, r.SelectionLength);
+    }
+
+    [Fact]
+    public void Blank_line_between_paragraphs_starts_a_list()
+    {
+        var r = MarkdownFormatter.ToggleLinePrefix("a\n\nb", 2, 0, LinePrefixKind.Bullet);
+
+        Assert.Equal("a\n- \nb", r.Text);
+    }
+
+    [Fact]
     public void Does_not_touch_surrounding_lines()
     {
         var r = MarkdownFormatter.ToggleLinePrefix("before\ntarget\nafter", 7, 6, LinePrefixKind.Bullet);

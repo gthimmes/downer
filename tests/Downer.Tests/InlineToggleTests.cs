@@ -88,6 +88,25 @@ public class InlineToggleTests
     }
 
     [Fact]
+    public void Snake_case_underscores_are_not_treated_as_italic_markers()
+    {
+        // Selecting "var" inside my_var_name must wrap, not delete the literal underscores.
+        var r = MarkdownFormatter.ToggleInline("my_var_name", 3, 3, "_");
+
+        Assert.Equal("my__var__name", r.Text);
+        Assert.Equal(4, r.SelectionStart);
+        Assert.Equal(3, r.SelectionLength);
+    }
+
+    [Fact]
+    public void Standalone_underscore_italics_still_unwrap()
+    {
+        var r = MarkdownFormatter.ToggleInline("_hello_ world", 1, 5, "_");
+
+        Assert.Equal("hello world", r.Text);
+    }
+
+    [Fact]
     public void Clamps_out_of_range_selection()
     {
         var r = MarkdownFormatter.ToggleInline("hi", 0, 99, "**");

@@ -23,6 +23,7 @@ public partial class MainWindow
 
         Editor.Document.Replace(edit.ReplaceStart, edit.ReplaceLength, edit.InsertText);
         Editor.CaretOffset = edit.CaretOffset;
+        Editor.TextArea.Caret.BringCaretToView();
         e.Handled = true;
     }
 

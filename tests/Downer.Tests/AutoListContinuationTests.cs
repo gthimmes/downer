@@ -109,6 +109,34 @@ public class AutoListContinuationTests
     }
 
     [Fact]
+    public void Caret_at_start_of_leading_newline_document_does_not_crash()
+    {
+        Assert.Null(AutoListContinuation.OnEnter("\nfoo", 0));
+    }
+
+    [Fact]
+    public void Ten_digit_ordered_numbers_continue_without_overflow()
+    {
+        var edit = AutoListContinuation.OnEnter("9999999999. item", 16);
+
+        Assert.Equal("\n10000000000. ", edit!.InsertText);
+    }
+
+    [Fact]
+    public void Absurdly_long_ordered_numbers_fall_back_to_default_enter()
+    {
+        Assert.Null(AutoListContinuation.OnEnter("9999999999999999999999. x", 25));
+    }
+
+    [Fact]
+    public void Crlf_document_continues_with_crlf()
+    {
+        var edit = AutoListContinuation.OnEnter("- item\r\nnext", 6);
+
+        Assert.Equal("\r\n- ", edit!.InsertText);
+    }
+
+    [Fact]
     public void Plain_text_returns_null()
     {
         Assert.Null(AutoListContinuation.OnEnter("plain text", 10));

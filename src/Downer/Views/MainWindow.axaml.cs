@@ -77,6 +77,16 @@ public partial class MainWindow : Window
     {
         var cmd = PlatformSettings?.HotkeyConfiguration?.CommandModifiers ?? KeyModifiers.Control;
 
+        // Display-only gestures: AvaloniaEdit already binds these keys internally.
+        MenuUndo.InputGesture = new KeyGesture(Key.Z, cmd);
+        MenuRedo.InputGesture = cmd == KeyModifiers.Meta
+            ? new KeyGesture(Key.Z, cmd | KeyModifiers.Shift)
+            : new KeyGesture(Key.Y, cmd);
+        MenuCut.InputGesture = new KeyGesture(Key.X, cmd);
+        MenuCopy.InputGesture = new KeyGesture(Key.C, cmd);
+        MenuPaste.InputGesture = new KeyGesture(Key.V, cmd);
+        MenuSelectAll.InputGesture = new KeyGesture(Key.A, cmd);
+
         Shortcut(MenuNew, Key.N, cmd, () => _ = NewFileAsync());
         Shortcut(MenuOpen, Key.O, cmd, () => _ = OpenFileAsync());
         Shortcut(MenuSave, Key.S, cmd, () => _ = SaveAsync());

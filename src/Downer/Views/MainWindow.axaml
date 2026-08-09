@@ -23,14 +23,14 @@
         <MenuItem Header="E_xit" Click="OnExit" />
       </MenuItem>
       <MenuItem Header="_Edit">
-        <MenuItem Header="_Undo" Click="OnUndo" InputGesture="Ctrl+Z" />
-        <MenuItem Header="_Redo" Click="OnRedo" InputGesture="Ctrl+Y" />
+        <MenuItem x:Name="MenuUndo" Header="_Undo" Click="OnUndo" />
+        <MenuItem x:Name="MenuRedo" Header="_Redo" Click="OnRedo" />
         <Separator />
-        <MenuItem Header="Cu_t" Click="OnCut" InputGesture="Ctrl+X" />
-        <MenuItem Header="_Copy" Click="OnCopy" InputGesture="Ctrl+C" />
-        <MenuItem Header="_Paste" Click="OnPaste" InputGesture="Ctrl+V" />
+        <MenuItem x:Name="MenuCut" Header="Cu_t" Click="OnCut" />
+        <MenuItem x:Name="MenuCopy" Header="_Copy" Click="OnCopy" />
+        <MenuItem x:Name="MenuPaste" Header="_Paste" Click="OnPaste" />
         <Separator />
-        <MenuItem Header="Select _All" Click="OnSelectAll" InputGesture="Ctrl+A" />
+        <MenuItem x:Name="MenuSelectAll" Header="Select _All" Click="OnSelectAll" />
         <Separator />
         <MenuItem x:Name="MenuFind" Header="_Find…" Click="OnFind" />
         <MenuItem x:Name="MenuReplace" Header="R_eplace…" Click="OnReplace" />

@@ -61,6 +61,14 @@ public class HeadingTests
     }
 
     [Fact]
+    public void Empty_document_gets_heading_marker()
+    {
+        var r = MarkdownFormatter.SetHeading("", 0, 0, 1);
+
+        Assert.Equal("# ", r.Text);
+    }
+
+    [Fact]
     public void Only_touches_lines_in_selection()
     {
         var r = MarkdownFormatter.SetHeading("intro\ntitle\noutro", 6, 5, 1);

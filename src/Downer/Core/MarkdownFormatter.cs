@@ -60,7 +60,8 @@ public static partial class MarkdownFormatter
         if (start >= m
             && start + length + m <= text.Length
             && text.AsSpan(start - m, m).SequenceEqual(marker)
-            && text.AsSpan(start + length, m).SequenceEqual(marker))
+            && text.AsSpan(start + length, m).SequenceEqual(marker)
+            && !SurroundingMarkersAreLiteral(text, start, length, marker))
         {
             var newText = text.Remove(start + length, m).Remove(start - m, m);
             return new EditResult(newText, start - m, length);
@@ -68,6 +69,19 @@ public static partial class MarkdownFormatter
 
         var wrapped = text.Insert(start + length, marker).Insert(start, marker);
         return new EditResult(wrapped, start + m, length);
+    }
+
+    /// <summary>Underscores glued to word characters (my_var_name) are literals, not italic markers.</summary>
+    private static bool SurroundingMarkersAreLiteral(string text, int start, int length, string marker)
+    {
+        if (marker[0] != '_')
+            return false;
+
+        var m = marker.Length;
+        var beforeIndex = start - m - 1;
+        var afterIndex = start + length + m;
+        return (beforeIndex >= 0 && char.IsLetterOrDigit(text[beforeIndex]))
+            || (afterIndex < text.Length && char.IsLetterOrDigit(text[afterIndex]));
     }
 
     // ---- Line prefixes (lists, quote) ----
@@ -79,13 +93,16 @@ public static partial class MarkdownFormatter
         var lines = SplitLines(text[blockStart..blockEnd]);
 
         var contentLines = lines.Where(l => l.Content.Trim().Length > 0).ToList();
-        var removing = contentLines.Count > 0 && contentLines.All(l => HasPrefix(l.Content, kind));
+        // A block with no content at all (empty document, blank line) still gets
+        // the prefix, so the command visibly starts a list instead of no-opping.
+        var blockIsBlank = contentLines.Count == 0;
+        var removing = !blockIsBlank && contentLines.All(l => HasPrefix(l.Content, kind));
 
         var builder = new StringBuilder();
         var number = 1;
         foreach (var line in lines)
         {
-            if (line.Content.Trim().Length == 0)
+            if (!blockIsBlank && line.Content.Trim().Length == 0)
             {
                 builder.Append(line.Content).Append(line.Terminator);
                 continue;
@@ -161,6 +178,7 @@ public static partial class MarkdownFormatter
         var lines = SplitLines(text[blockStart..blockEnd]);
 
         var contentLines = lines.Where(l => l.Content.Trim().Length > 0).ToList();
+        var blockIsBlank = contentLines.Count == 0;
         var allAtLevel = level > 0
             && contentLines.Count > 0
             && contentLines.All(l => HeadingRegex().Match(l.Content) is { Success: true } m && m.Groups["hashes"].Length == level);
@@ -169,7 +187,7 @@ public static partial class MarkdownFormatter
         var builder = new StringBuilder();
         foreach (var line in lines)
         {
-            if (line.Content.Trim().Length == 0)
+            if (!blockIsBlank && line.Content.Trim().Length == 0)
             {
                 builder.Append(line.Content).Append(line.Terminator);
                 continue;
@@ -331,19 +349,14 @@ public static partial class MarkdownFormatter
     /// <summary>Expands a selection to whole lines. Returns [start, end) excluding the final line terminator.</summary>
     private static (int BlockStart, int BlockEnd) LineBlock(string text, int start, int length)
     {
-        var blockStart = text.LastIndexOf('\n', Math.Max(0, Math.Min(start, text.Length) - 1));
-        blockStart = blockStart < 0 ? 0 : blockStart + 1;
+        var blockStart = TextLines.LineStart(text, start);
 
         // A selection ending just after a newline should not pull in the next line.
         var selEnd = start + length;
-        if (length > 0 && selEnd > 0 && selEnd > start && text[selEnd - 1] == '\n')
+        if (length > 0 && text[selEnd - 1] == '\n')
             selEnd--;
 
-        var blockEnd = selEnd < text.Length ? text.IndexOf('\n', selEnd) : -1;
-        blockEnd = blockEnd < 0 ? text.Length : blockEnd;
-        if (blockEnd > 0 && text[blockEnd - 1] == '\r')
-            blockEnd--;
-
+        var blockEnd = TextLines.LineEnd(text, selEnd, blockStart);
         return (blockStart, blockEnd);
     }
 
