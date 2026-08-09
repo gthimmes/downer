@@ -65,9 +65,12 @@ public partial class MainWindow
         {
             var text = await File.ReadAllTextAsync(path);
             SetDocumentText(text, path);
+            RememberRecentFile(path);
         }
         catch (Exception ex)
         {
+            if (ex is FileNotFoundException or DirectoryNotFoundException)
+                ForgetRecentFile(path);
             await AppDialogs.InfoAsync(this, "Could not open file", ex.Message);
         }
     }
@@ -148,6 +151,7 @@ public partial class MainWindow
             _currentFilePath = path;
             Editor.Document.UndoStack.MarkAsOriginalFile();
             UpdateWindowChrome();
+            RememberRecentFile(path);
             return true;
         }
         catch (Exception ex)

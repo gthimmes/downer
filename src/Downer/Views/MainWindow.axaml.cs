@@ -32,6 +32,7 @@ public partial class MainWindow : Window
         SetUpEditingBehaviors();
         SetUpPreview();
         SetUpViewOptions();
+        SetUpSettings();
 
         Loaded += OnWindowLoaded;
     }

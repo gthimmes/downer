@@ -76,6 +76,12 @@
         <MenuItem x:Name="MenuZoomIn" Header="Zoom _In" Click="OnZoomIn" />
         <MenuItem x:Name="MenuZoomOut" Header="Zoom _Out" Click="OnZoomOut" />
         <MenuItem x:Name="MenuZoomReset" Header="_Reset Zoom" Click="OnZoomReset" />
+        <Separator />
+        <MenuItem Header="_Theme">
+          <MenuItem x:Name="MenuThemeSystem" Header="_System" Click="OnThemeSystem" ToggleType="Radio" IsChecked="True" />
+          <MenuItem x:Name="MenuThemeLight" Header="_Light" Click="OnThemeLight" ToggleType="Radio" />
+          <MenuItem x:Name="MenuThemeDark" Header="_Dark" Click="OnThemeDark" ToggleType="Radio" />
+        </MenuItem>
       </MenuItem>
     </Menu>
 
