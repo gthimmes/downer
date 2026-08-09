@@ -85,13 +85,21 @@ public partial class MainWindow
         UpdateEditorTheme();
     }
 
+    /// <summary>Effective darkness; trusts the explicit preference because ActualThemeVariant can lag a switch.</summary>
+    private bool IsDarkNow => _themePreference switch
+    {
+        ThemePreference.Dark => true,
+        ThemePreference.Light => false,
+        _ => ActualThemeVariant == ThemeVariant.Dark,
+    };
+
     private void UpdateEditorTheme()
     {
-        var dark = ActualThemeVariant == ThemeVariant.Dark;
+        var dark = IsDarkNow;
         _textMate?.SetTheme(_registryOptions.LoadTheme(dark ? ThemeName.DarkPlus : ThemeName.LightPlus));
 
         Editor.TextArea.TextView.CurrentLineBackground = new Avalonia.Media.SolidColorBrush(
-            Avalonia.Media.Color.Parse(dark ? "#0AFFFFFF" : "#08000000"));
+            Avalonia.Media.Color.Parse(dark ? "#0DFFFFFF" : "#08000000"));
         Editor.TextArea.TextView.CurrentLineBorder = new Avalonia.Media.Pen(Avalonia.Media.Brushes.Transparent, 0);
 
         RefreshRichStyling();

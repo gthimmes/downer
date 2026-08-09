@@ -32,6 +32,8 @@ public partial class MainWindow
     {
         _editorMode = mode;
 
+        Editor.Options.HighlightCurrentLine = mode == EditorSurfaceMode.Source;
+
         if (mode == EditorSurfaceMode.Rich)
         {
             _textMate?.Dispose();
@@ -40,7 +42,7 @@ public partial class MainWindow
             Editor.FontFamily = SansFont;
             _richTransformer.MonoFont = MonoFont;
             _richTransformer.BaseFontSize = Editor.FontSize;
-            _richTransformer.Palette = ActualThemeVariant == ThemeVariant.Dark ? RichPalette.Dark : RichPalette.Light;
+            _richTransformer.Palette = IsDarkNow ? RichPalette.Dark : RichPalette.Light;
             RefreshFenceStates(force: true);
 
             if (!Editor.TextArea.TextView.LineTransformers.Contains(_richTransformer))
@@ -86,7 +88,7 @@ public partial class MainWindow
     /// <summary>Rich-mode colors and metrics that depend on theme or zoom.</summary>
     private void RefreshRichStyling()
     {
-        _richTransformer.Palette = ActualThemeVariant == ThemeVariant.Dark ? RichPalette.Dark : RichPalette.Light;
+        _richTransformer.Palette = IsDarkNow ? RichPalette.Dark : RichPalette.Light;
         _richTransformer.BaseFontSize = Editor.FontSize;
         if (_editorMode == EditorSurfaceMode.Rich)
             Editor.TextArea.TextView.Redraw();

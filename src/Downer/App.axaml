@@ -2,6 +2,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Downer.App"
              RequestedThemeVariant="Default">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="ChromeBackground">#F7F8FA</SolidColorBrush>
+          <SolidColorBrush x:Key="ChromeBorder">#E4E7EB</SolidColorBrush>
+          <SolidColorBrush x:Key="ChromeHover">#E9ECF0</SolidColorBrush>
+          <SolidColorBrush x:Key="MutedForeground">#6B7480</SolidColorBrush>
+          <SolidColorBrush x:Key="ToolIconBrush">#3B4552</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="ChromeBackground">#22262B</SolidColorBrush>
+          <SolidColorBrush x:Key="ChromeBorder">#34393F</SolidColorBrush>
+          <SolidColorBrush x:Key="ChromeHover">#3A4048</SolidColorBrush>
+          <SolidColorBrush x:Key="MutedForeground">#9AA3AD</SolidColorBrush>
+          <SolidColorBrush x:Key="ToolIconBrush">#C9D0D8</SolidColorBrush>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
   <Application.Styles>
     <FluentTheme />
     <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
