@@ -29,6 +29,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         SetUpEditor();
+        SetUpPreview();
 
         Loaded += OnWindowLoaded;
     }
@@ -74,6 +75,10 @@ public partial class MainWindow : Window
         Shortcut(MenuOpen, Key.O, cmd, () => _ = OpenFileAsync());
         Shortcut(MenuSave, Key.S, cmd, () => _ = SaveAsync());
         Shortcut(MenuSaveAs, Key.S, cmd | KeyModifiers.Shift, () => _ = SaveAsAsync());
+
+        Shortcut(MenuViewEditor, Key.D1, cmd, () => SetViewMode(ViewMode.EditorOnly));
+        Shortcut(MenuViewSplit, Key.D2, cmd, () => SetViewMode(ViewMode.Split));
+        Shortcut(MenuViewPreview, Key.D3, cmd, () => SetViewMode(ViewMode.PreviewOnly));
     }
 
     private void Shortcut(MenuItem item, Key key, KeyModifiers modifiers, Action action)
@@ -86,6 +91,7 @@ public partial class MainWindow : Window
     private void OnDocumentTextChanged()
     {
         UpdateWindowChrome();
+        SchedulePreviewRefresh();
     }
 
     private void UpdateWindowChrome()

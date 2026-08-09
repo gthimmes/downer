@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ae="using:AvaloniaEdit"
+        xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
         x:Class="Downer.Views.MainWindow"
         Title="Downer"
         Width="1200" Height="780"
@@ -29,6 +30,11 @@
         <Separator />
         <MenuItem Header="Select _All" Click="OnSelectAll" InputGesture="Ctrl+A" />
       </MenuItem>
+      <MenuItem Header="_View">
+        <MenuItem x:Name="MenuViewEditor" Header="_Editor Only" Click="OnViewEditor" ToggleType="Radio" />
+        <MenuItem x:Name="MenuViewSplit" Header="_Split" Click="OnViewSplit" ToggleType="Radio" IsChecked="True" />
+        <MenuItem x:Name="MenuViewPreview" Header="_Preview Only" Click="OnViewPreview" ToggleType="Radio" />
+      </MenuItem>
     </Menu>
 
     <Border DockPanel.Dock="Bottom"
@@ -42,14 +48,22 @@
       </DockPanel>
     </Border>
 
-    <ae:TextEditor x:Name="Editor"
-                   FontFamily="Cascadia Code,Consolas,Menlo,DejaVu Sans Mono,monospace"
-                   FontSize="14"
-                   ShowLineNumbers="True"
-                   WordWrap="True"
-                   HorizontalScrollBarVisibility="Disabled"
-                   VerticalScrollBarVisibility="Auto"
-                   Padding="8,4" />
+    <Grid x:Name="EditorGrid" ColumnDefinitions="*,4,*">
+      <ae:TextEditor x:Name="Editor"
+                     Grid.Column="0"
+                     FontFamily="Cascadia Code,Consolas,Menlo,DejaVu Sans Mono,monospace"
+                     FontSize="14"
+                     ShowLineNumbers="True"
+                     WordWrap="True"
+                     HorizontalScrollBarVisibility="Disabled"
+                     VerticalScrollBarVisibility="Auto"
+                     Padding="8,4" />
+      <GridSplitter x:Name="PaneSplitter" Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
+      <md:MarkdownScrollViewer x:Name="Preview"
+                               Grid.Column="2"
+                               SaveScrollValueWhenContentUpdated="True"
+                               Margin="8,0,0,0" />
+    </Grid>
 
   </DockPanel>
 </Window>
