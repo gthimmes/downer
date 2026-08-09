@@ -48,7 +48,16 @@ Each phase lands as its own commit (pushed to `origin/main`) with tests where lo
 - [x] Welcome document, About dialog
 - [x] README with build/run instructions for all platforms
 
+## Phase 9 — WYSIWYG editing (v2 direction) ✅
+- [x] Pure `MarkdownSpanParser` + `CodeFences` (fully tested)
+- [x] In-place formatted editing as the default view (RichMarkdownTransformer)
+- [x] Formatted / Source toggle (`Ctrl/Cmd+E`), mode persisted
+- [x] Visual redesign: icon toolbar, unified chrome, dark-mode fixes
+- [x] Headless UI test project (Avalonia.Headless + Skia frame capture)
+- [x] Window-capture screenshot tooling for design iteration
+
 ## Backlog / ideas (post-1.0)
+- Hide syntax markers entirely when the caret is on another line (full Typora behavior)
 - Autosave, session restore, multiple tabs
 - Spell check
 - Export to PDF

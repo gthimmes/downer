@@ -4,7 +4,8 @@ A full-featured, platform-independent **markdown editor** for Windows, macOS, an
 
 ## Features
 
-- **Editor** — AvaloniaEdit surface with TextMate markdown syntax highlighting, line numbers, word wrap, font zoom, current-line highlight
+- **WYSIWYG-first editing** — the default *Formatted* view styles markdown in place: real heading sizes, true bold/italic/strikethrough, mono code runs with tinted backgrounds, underlined links, and dimmed syntax markers. `Ctrl/Cmd+E` flips to the raw *Markdown Source* view (monospace, TextMate highlighting, line numbers) and back
+- **Editor** — AvaloniaEdit surface with word wrap, font zoom, and a source mode with TextMate markdown syntax highlighting and line numbers
 - **Live preview** — rendered markdown side-by-side with debounced updates and proportional scroll sync; Editor / Split / Preview layouts (`Ctrl/Cmd+1..3`)
 - **Formatting** — toggle bold / italic / strikethrough / inline code; H1–H6 headings; bullet, numbered, and task lists; blockquotes — all selection-aware toggles that also *unwrap* existing formatting
 - **Smart lists** — `Enter` continues lists (incrementing numbers, fresh checkboxes, preserved indent); `Enter` on an empty item exits the list
@@ -33,19 +34,25 @@ dotnet publish src/Downer -c Release       # self-contained-ish release build
 
 ```
 src/Downer/
-  Core/        Pure, fully-tested logic: MarkdownFormatter, AutoListContinuation,
-               HtmlExporter, DocumentStats, RecentFiles
+  Core/        Pure, fully-tested logic: MarkdownFormatter, MarkdownSpanParser,
+               AutoListContinuation, HtmlExporter, DocumentStats, RecentFiles
   Services/    SettingsService (JSON persistence in the per-user app-data dir)
   Views/       MainWindow (partial classes per concern: FileOps, Editing,
-               Preview, ViewOptions, Settings, Welcome)
+               Preview, ViewOptions, Settings, EditorMode, Welcome) and
+               RichMarkdownTransformer (the in-place WYSIWYG renderer)
   Dialogs/     Code-built modal dialogs
-tests/Downer.Tests/   xUnit suite covering everything in Core and Services
+tests/Downer.Tests/     xUnit suite covering everything in Core and Services
+tests/Downer.UiTests/   Avalonia.Headless UI tests: boots the real window,
+                        sends real keyboard input, captures rendered frames
+tools/capture-window.ps1  Screenshots of the live app window for design review
 ```
 
 The formatting engine is deliberately pure — every operation is a
 `(text, selection) -> (text, selection)` function with no UI dependencies, which is
 what makes the test suite possible. The UI applies results as minimal single-replace
-edits so undo history stays clean.
+edits so undo history stays clean. The WYSIWYG view is the same principle: a pure
+span parser feeds an AvaloniaEdit line transformer, so the document is always plain
+markdown — only the rendering changes.
 
 ## Stack
 
