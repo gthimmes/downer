@@ -29,11 +29,15 @@ public partial class MainWindow
         SetFontSize(s.FontSize);
         if (Editor.WordWrap != s.WordWrap)
             OnToggleWordWrap(null, null!);
-        if (Editor.ShowLineNumbers != s.ShowLineNumbers)
-            OnToggleLineNumbers(null, null!);
+        _lineNumbersPreference = s.ShowLineNumbers;
+        MenuLineNumbers.IsChecked = _lineNumbersPreference;
 
         if (Enum.TryParse<ViewMode>(s.ViewMode, out var mode))
             SetViewMode(mode);
+
+        SetEditorMode(Enum.TryParse<EditorSurfaceMode>(s.EditorMode, out var editorMode)
+            ? editorMode
+            : EditorSurfaceMode.Rich);
 
         if (Enum.TryParse<ThemePreference>(s.Theme, out var theme))
             ApplyThemePreference(theme);
@@ -48,8 +52,9 @@ public partial class MainWindow
         var s = _settingsService.Settings;
         s.Theme = _themePreference.ToString();
         s.ViewMode = _viewMode.ToString();
+        s.EditorMode = _editorMode.ToString();
         s.WordWrap = Editor.WordWrap;
-        s.ShowLineNumbers = Editor.ShowLineNumbers;
+        s.ShowLineNumbers = _lineNumbersPreference;
         s.FontSize = Editor.FontSize;
         _settingsService.Save();
 
@@ -83,7 +88,13 @@ public partial class MainWindow
     private void UpdateEditorTheme()
     {
         var dark = ActualThemeVariant == ThemeVariant.Dark;
-        _textMate.SetTheme(_registryOptions.LoadTheme(dark ? ThemeName.DarkPlus : ThemeName.LightPlus));
+        _textMate?.SetTheme(_registryOptions.LoadTheme(dark ? ThemeName.DarkPlus : ThemeName.LightPlus));
+
+        Editor.TextArea.TextView.CurrentLineBackground = new Avalonia.Media.SolidColorBrush(
+            Avalonia.Media.Color.Parse(dark ? "#0AFFFFFF" : "#08000000"));
+        Editor.TextArea.TextView.CurrentLineBorder = new Avalonia.Media.Pen(Avalonia.Media.Brushes.Transparent, 0);
+
+        RefreshRichStyling();
     }
 
     // ---- Recent files ----

@@ -66,6 +66,9 @@
         <MenuItem Header="Horizontal _Rule" Click="OnInsertRule" />
       </MenuItem>
       <MenuItem Header="_View">
+        <MenuItem x:Name="MenuModeRich" Header="_Formatted Editing" Click="OnModeRich" ToggleType="Radio" IsChecked="True" />
+        <MenuItem x:Name="MenuModeSource" Header="_Markdown Source" Click="OnModeSource" ToggleType="Radio" />
+        <Separator />
         <MenuItem x:Name="MenuViewEditor" Header="_Editor Only" Click="OnViewEditor" ToggleType="Radio" />
         <MenuItem x:Name="MenuViewSplit" Header="_Split" Click="OnViewSplit" ToggleType="Radio" IsChecked="True" />
         <MenuItem x:Name="MenuViewPreview" Header="_Preview Only" Click="OnViewPreview" ToggleType="Radio" />
@@ -134,6 +137,7 @@
       <DockPanel>
         <TextBlock x:Name="PositionText" DockPanel.Dock="Right" Text="Ln 1, Col 1" Margin="16,0,0,0" />
         <TextBlock x:Name="CountsText" DockPanel.Dock="Right" Text="" Margin="16,0,0,0" />
+        <TextBlock x:Name="ModeText" DockPanel.Dock="Right" Text="Formatted" Margin="16,0,0,0" />
         <TextBlock x:Name="FileText" Text="Untitled" TextTrimming="CharacterEllipsis" />
       </DockPanel>
     </Border>
@@ -143,11 +147,11 @@
                      Grid.Column="0"
                      FontFamily="Cascadia Code,Consolas,Menlo,DejaVu Sans Mono,monospace"
                      FontSize="14"
-                     ShowLineNumbers="True"
+                     ShowLineNumbers="False"
                      WordWrap="True"
                      HorizontalScrollBarVisibility="Disabled"
                      VerticalScrollBarVisibility="Auto"
-                     Padding="8,4" />
+                     Padding="28,18" />
       <GridSplitter x:Name="PaneSplitter" Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
       <md:MarkdownScrollViewer x:Name="Preview"
                                Grid.Column="2"

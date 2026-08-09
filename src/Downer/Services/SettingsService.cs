@@ -5,7 +5,8 @@ namespace Downer.Services;
 public sealed class AppSettings
 {
     public string Theme { get; set; } = "System";
-    public string ViewMode { get; set; } = "Split";
+    public string ViewMode { get; set; } = "EditorOnly";
+    public string EditorMode { get; set; } = "Rich";
     public bool WordWrap { get; set; } = true;
     public bool ShowLineNumbers { get; set; } = true;
     public double FontSize { get; set; } = 14;

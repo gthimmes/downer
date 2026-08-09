@@ -14,7 +14,7 @@ public partial class MainWindow : Window
     private readonly string[] _startupArgs;
 
     private RegistryOptions _registryOptions = null!;
-    private TextMate.Installation _textMate = null!;
+    private TextMate.Installation? _textMate;
 
     private string? _currentFilePath;
     private bool _forceClose;
@@ -51,8 +51,6 @@ public partial class MainWindow : Window
 
         var isDark = ActualThemeVariant == ThemeVariant.Dark;
         _registryOptions = new RegistryOptions(isDark ? ThemeName.DarkPlus : ThemeName.LightPlus);
-        _textMate = Editor.InstallTextMate(_registryOptions);
-        _textMate.SetGrammar(_registryOptions.GetScopeByLanguageId("markdown"));
 
         Editor.TextChanged += (_, _) => OnDocumentTextChanged();
         Editor.TextArea.Caret.PositionChanged += (_, _) => UpdateCaretStatus();
@@ -92,6 +90,7 @@ public partial class MainWindow : Window
         Shortcut(MenuSave, Key.S, cmd, () => _ = SaveAsync());
         Shortcut(MenuSaveAs, Key.S, cmd | KeyModifiers.Shift, () => _ = SaveAsAsync());
 
+        Shortcut(MenuModeSource, Key.E, cmd, ToggleEditorMode);
         Shortcut(MenuViewEditor, Key.D1, cmd, () => SetViewMode(ViewMode.EditorOnly));
         Shortcut(MenuViewSplit, Key.D2, cmd, () => SetViewMode(ViewMode.Split));
         Shortcut(MenuViewPreview, Key.D3, cmd, () => SetViewMode(ViewMode.PreviewOnly));
@@ -124,6 +123,7 @@ public partial class MainWindow : Window
     private void OnDocumentTextChanged()
     {
         UpdateWindowChrome();
+        RefreshFenceStates();
         SchedulePreviewRefresh();
     }
 

@@ -65,8 +65,12 @@ public partial class MainWindow
 
         ## Getting started
 
-        Type on the left, see the rendered result on the right. Use the **View** menu
-        (or `Ctrl/Cmd+1..3`) to switch between *Editor*, *Split*, and *Preview* layouts.
+        You are editing **formatted markdown** right now — headings are big, bold is bold,
+        and the syntax markers fade into the background. Press `Ctrl/Cmd+E` to flip to the
+        raw *Markdown Source* view and back.
+
+        Want a rendered preview pane too? Use the **View** menu (or `Ctrl/Cmd+1..3`) to
+        switch between *Editor*, *Split*, and *Preview* layouts.
 
         ## Formatting
 
@@ -79,6 +83,7 @@ public partial class MainWindow
         | ~~Strikethrough~~ | `Ctrl/Cmd+Shift+X` |
         | `Inline code` | `Ctrl/Cmd+Shift+C` |
         | [Link](https://example.com) | `Ctrl/Cmd+K` |
+        | Formatted / Source view | `Ctrl/Cmd+E` |
         | Bullet list | `Ctrl/Cmd+Shift+8` |
         | Numbered list | `Ctrl/Cmd+Shift+7` |
         | Task list | `Ctrl/Cmd+Shift+9` |

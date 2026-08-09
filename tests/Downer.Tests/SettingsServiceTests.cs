@@ -31,6 +31,7 @@ public sealed class SettingsServiceTests : IDisposable
         writer.Load();
         writer.Settings.Theme = "Dark";
         writer.Settings.ViewMode = "PreviewOnly";
+        writer.Settings.EditorMode = "Source";
         writer.Settings.WordWrap = false;
         writer.Settings.FontSize = 18;
         writer.Settings.RecentFiles.Add("C:\\notes\\a.md");
@@ -41,6 +42,7 @@ public sealed class SettingsServiceTests : IDisposable
 
         Assert.Equal("Dark", reader.Settings.Theme);
         Assert.Equal("PreviewOnly", reader.Settings.ViewMode);
+        Assert.Equal("Source", reader.Settings.EditorMode);
         Assert.False(reader.Settings.WordWrap);
         Assert.Equal(18, reader.Settings.FontSize);
         Assert.Equal(new[] { "C:\\notes\\a.md" }, reader.Settings.RecentFiles);

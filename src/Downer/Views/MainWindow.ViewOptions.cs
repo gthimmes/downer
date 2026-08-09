@@ -45,11 +45,18 @@ public partial class MainWindow
         MenuWordWrap.IsChecked = Editor.WordWrap;
     }
 
+    private bool _lineNumbersPreference = true;
+
     private void OnToggleLineNumbers(object? sender, RoutedEventArgs e)
     {
-        Editor.ShowLineNumbers = !Editor.ShowLineNumbers;
-        MenuLineNumbers.IsChecked = Editor.ShowLineNumbers;
+        _lineNumbersPreference = !_lineNumbersPreference;
+        MenuLineNumbers.IsChecked = _lineNumbersPreference;
+        ApplyLineNumberVisibility();
     }
+
+    /// <summary>Line numbers are a source-view concept; formatted view never shows them.</summary>
+    private void ApplyLineNumberVisibility() =>
+        Editor.ShowLineNumbers = _editorMode == EditorSurfaceMode.Source && _lineNumbersPreference;
 
     // ---- Zoom ----
 
@@ -57,8 +64,11 @@ public partial class MainWindow
     private void OnZoomOut(object? sender, RoutedEventArgs e) => SetFontSize(Editor.FontSize - 1);
     private void OnZoomReset(object? sender, RoutedEventArgs e) => SetFontSize(DefaultFontSize);
 
-    private void SetFontSize(double size) =>
+    private void SetFontSize(double size)
+    {
         Editor.FontSize = Math.Clamp(size, MinFontSize, MaxFontSize);
+        RefreshRichStyling();
+    }
 
     // ---- Status bar counts ----
 
