@@ -83,6 +83,10 @@
           <MenuItem x:Name="MenuThemeDark" Header="_Dark" Click="OnThemeDark" ToggleType="Radio" />
         </MenuItem>
       </MenuItem>
+      <MenuItem Header="_Help">
+        <MenuItem Header="_Welcome Guide" Click="OnWelcomeGuide" />
+        <MenuItem Header="_About Downer" Click="OnAbout" />
+      </MenuItem>
     </Menu>
 
     <Border DockPanel.Dock="Top"

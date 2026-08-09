@@ -33,6 +33,7 @@ public partial class MainWindow : Window
         SetUpPreview();
         SetUpViewOptions();
         SetUpSettings();
+        SetUpDragDrop();
 
         Loaded += OnWindowLoaded;
     }
@@ -68,6 +69,8 @@ public partial class MainWindow : Window
         var fileArg = _startupArgs.FirstOrDefault(File.Exists);
         if (fileArg is not null)
             await LoadFileAsync(Path.GetFullPath(fileArg));
+        else
+            ShowWelcomeDocument();
     }
 
     private void SetUpShortcuts()
