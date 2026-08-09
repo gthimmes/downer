@@ -1,0 +1,8 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Downer.Views.MainWindow"
+        Title="Downer"
+        Width="1200" Height="780"
+        WindowStartupLocation="CenterScreen">
+  <TextBlock Text="Downer" HorizontalAlignment="Center" VerticalAlignment="Center" />
+</Window>
