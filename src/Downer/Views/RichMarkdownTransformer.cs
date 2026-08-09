@@ -62,6 +62,10 @@ public sealed class RichMarkdownTransformer : DocumentColorizingTransformer
             return;
         }
 
+        // Table lines render whole-line mono so padded columns align into a grid.
+        if (info.Spans.Any(s => s.Kind is SpanKind.TablePipe or SpanKind.TableSeparator))
+            ChangeLinePart(line.Offset, line.EndOffset, SetMono);
+
         if (info.HeadingLevel > 0)
         {
             var scale = info.HeadingLevel switch

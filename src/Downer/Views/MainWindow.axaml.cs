@@ -53,7 +53,11 @@ public partial class MainWindow : Window
         _registryOptions = new RegistryOptions(isDark ? ThemeName.DarkPlus : ThemeName.LightPlus);
 
         Editor.TextChanged += (_, _) => OnDocumentTextChanged();
-        Editor.TextArea.Caret.PositionChanged += (_, _) => UpdateCaretStatus();
+        Editor.TextArea.Caret.PositionChanged += (_, _) =>
+        {
+            UpdateCaretStatus();
+            TrackRevealedLine();
+        };
 
         Editor.Document.UndoStack.MarkAsOriginalFile();
         UpdateWindowChrome();
@@ -105,6 +109,7 @@ public partial class MainWindow : Window
         Shortcut(MenuOrdered, Key.D7, cmd | KeyModifiers.Shift, () => OnOrderedList(null, null!));
         Shortcut(MenuTask, Key.D9, cmd | KeyModifiers.Shift, () => OnTaskList(null, null!));
         Shortcut(MenuQuote, Key.Q, cmd | KeyModifiers.Shift, () => OnBlockquote(null, null!));
+        Shortcut(MenuFormatTable, Key.T, cmd | KeyModifiers.Shift, () => OnFormatTable(null, null!));
 
         Shortcut(MenuFind, Key.F, cmd, () => OpenSearch(replaceMode: false));
         Shortcut(MenuReplace, Key.H, cmd, () => OpenSearch(replaceMode: true));

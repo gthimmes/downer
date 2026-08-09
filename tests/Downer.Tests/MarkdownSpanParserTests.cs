@@ -216,6 +216,55 @@ public class MarkdownSpanParserTests
         Assert.Contains(r.Spans, s => s.Kind == SpanKind.QuoteMarker);
     }
 
+    // ---- Tables ----
+
+    [Fact]
+    public void Table_row_pipes_are_grid_markers()
+    {
+        var r = MarkdownSpanParser.ParseLine("| a | b |");
+
+        Assert.Equal(3, r.Spans.Count(s => s.Kind == SpanKind.TablePipe && s.IsMarker));
+    }
+
+    [Fact]
+    public void Table_separator_row_is_one_span()
+    {
+        var r = MarkdownSpanParser.ParseLine("| --- | :-: |");
+
+        var sep = Single(r, SpanKind.TableSeparator, isMarker: true);
+        Assert.Equal(0, sep.Start);
+        Assert.Equal(13, sep.Length);
+    }
+
+    [Fact]
+    public void Emphasis_still_works_inside_table_cells()
+    {
+        var r = MarkdownSpanParser.ParseLine("| **bold** | `code` |");
+
+        Assert.Contains(r.Spans, s => s.Kind == SpanKind.Bold && !s.IsMarker);
+        Assert.Contains(r.Spans, s => s.Kind == SpanKind.Code && !s.IsMarker);
+    }
+
+    [Fact]
+    public void Table_row_is_not_mistaken_for_other_structures()
+    {
+        var r = MarkdownSpanParser.ParseLine("| - item | > quote |");
+
+        Assert.DoesNotContain(r.Spans, s => s.Kind == SpanKind.ListMarker);
+        Assert.DoesNotContain(r.Spans, s => s.Kind == SpanKind.QuoteMarker);
+    }
+
+    // ---- Fence markers ----
+
+    [Theory]
+    [InlineData("```csharp", 3)]
+    [InlineData("  ~~~", 5)]
+    [InlineData("plain", 0)]
+    public void Fence_marker_length_detects_delimiters(string line, int expected)
+    {
+        Assert.Equal(expected, CodeFences.FenceMarkerLength(line));
+    }
+
     // ---- Fence states ----
 
     [Fact]

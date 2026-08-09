@@ -109,4 +109,11 @@ public partial class MainWindow
 
     private void OnInsertCodeBlock(object? s, RoutedEventArgs e) =>
         ApplyFormat(MarkdownFormatter.InsertCodeBlock);
+
+    private void OnFormatTable(object? s, RoutedEventArgs e)
+    {
+        var result = TableFormatter.FormatTableAt(Editor.Text, Editor.CaretOffset);
+        if (result is not null)
+            ApplyEdit(result);
+    }
 }

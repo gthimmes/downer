@@ -19,8 +19,10 @@ public partial class MainWindow
     private static readonly FontFamily MonoFont = new("Cascadia Code,Consolas,Menlo,DejaVu Sans Mono,monospace");
 
     private readonly RichMarkdownTransformer _richTransformer = new();
+    private readonly MarkerHidingGenerator _markerHider = new();
     private EditorSurfaceMode _editorMode = EditorSurfaceMode.Rich;
     private FenceLineState[] _lastFenceStates = Array.Empty<FenceLineState>();
+    private int _revealedLine = 1;
 
     private void OnModeRich(object? sender, RoutedEventArgs e) => SetEditorMode(EditorSurfaceMode.Rich);
     private void OnModeSource(object? sender, RoutedEventArgs e) => SetEditorMode(EditorSurfaceMode.Source);
@@ -45,12 +47,19 @@ public partial class MainWindow
             _richTransformer.Palette = IsDarkNow ? RichPalette.Dark : RichPalette.Light;
             RefreshFenceStates(force: true);
 
+            _markerHider.RevealedLine = () => _revealedLine;
+            _markerHider.FenceStateFor = n =>
+                n - 1 < _lastFenceStates.Length ? _lastFenceStates[n - 1] : FenceLineState.Outside;
+
             if (!Editor.TextArea.TextView.LineTransformers.Contains(_richTransformer))
                 Editor.TextArea.TextView.LineTransformers.Add(_richTransformer);
+            if (!Editor.TextArea.TextView.ElementGenerators.Contains(_markerHider))
+                Editor.TextArea.TextView.ElementGenerators.Add(_markerHider);
         }
         else
         {
             Editor.TextArea.TextView.LineTransformers.Remove(_richTransformer);
+            Editor.TextArea.TextView.ElementGenerators.Remove(_markerHider);
             Editor.FontFamily = MonoFont;
 
             if (_textMate is null)
@@ -83,6 +92,29 @@ public partial class MainWindow
 
         if (changed && !force)
             Editor.TextArea.TextView.Redraw();
+    }
+
+    /// <summary>Markers are revealed only on the caret's line; moving the caret redraws both lines involved.</summary>
+    private void TrackRevealedLine()
+    {
+        var line = Editor.TextArea.Caret.Line;
+        if (line == _revealedLine)
+            return;
+
+        var previous = _revealedLine;
+        _revealedLine = line;
+
+        if (_editorMode != EditorSurfaceMode.Rich)
+            return;
+
+        RedrawDocumentLine(previous);
+        RedrawDocumentLine(line);
+    }
+
+    private void RedrawDocumentLine(int number)
+    {
+        if (number >= 1 && number <= Editor.Document.LineCount)
+            Editor.TextArea.TextView.Redraw(Editor.Document.GetLineByNumber(number));
     }
 
     /// <summary>Rich-mode colors and metrics that depend on theme or zoom.</summary>

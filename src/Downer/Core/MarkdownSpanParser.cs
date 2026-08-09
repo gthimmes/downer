@@ -15,6 +15,8 @@ public enum SpanKind
     LinkText,
     LinkUrl,
     LinkPunctuation,
+    TablePipe,
+    TableSeparator,
 }
 
 /// <summary>A styled region of a single line. Marker spans carry syntax; content spans carry text to style.</summary>
@@ -37,6 +39,13 @@ public static partial class CodeFences
 {
     [GeneratedRegex(@"^\s{0,3}(`{3,}|~{3,})")]
     private static partial Regex FenceRegex();
+
+    /// <summary>Length of the fence marker (indent + backticks/tildes) at the start of the line, or 0.</summary>
+    public static int FenceMarkerLength(string line)
+    {
+        var match = FenceRegex().Match(line);
+        return match.Success ? match.Length : 0;
+    }
 
     public static FenceLineState[] Analyze(string text)
     {
@@ -112,6 +121,9 @@ public static partial class MarkdownSpanParser
     [GeneratedRegex(@"(?<![\w])_(?![\s_])([^_]+?)(?<!\s)_(?![\w])")]
     private static partial Regex ItalicUnderscoreRegex();
 
+    [GeneratedRegex(@"^\s*\|(?:[ \t]*:?-+:?[ \t]*\|)+[ \t]*$")]
+    private static partial Regex TableSeparatorRowRegex();
+
     public static LineSpans ParseLine(string line, FenceLineState fenceState = FenceLineState.Outside)
     {
         var spans = new List<StyledSpan>();
@@ -121,6 +133,28 @@ public static partial class MarkdownSpanParser
         var claimed = new bool[line.Length];
         var headingLevel = 0;
         var contentStart = 0;
+
+        // Table rows: pipes become grid markers; cells still get inline styles.
+        if (line.TrimStart().StartsWith('|'))
+        {
+            if (TableSeparatorRowRegex().IsMatch(line))
+            {
+                var start = line.Length - line.TrimStart().Length;
+                AddClaimed(spans, claimed, start, line.TrimEnd().Length - start, SpanKind.TableSeparator, isMarker: true);
+            }
+            else
+            {
+                for (var i = 0; i < line.Length; i++)
+                {
+                    if (line[i] == '|')
+                        AddClaimed(spans, claimed, i, 1, SpanKind.TablePipe, isMarker: true);
+                }
+                ParseInline(line, claimed, spans);
+            }
+
+            spans.Sort((a, b) => a.Start.CompareTo(b.Start));
+            return new LineSpans(0, fenceState, spans);
+        }
 
         var quote = QuotePrefixRegex().Match(line);
         if (quote.Success)

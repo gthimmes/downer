@@ -140,6 +140,20 @@ public class MainWindowUiTests
     }
 
     [AvaloniaFact]
+    public void Ctrl_Shift_T_formats_the_table_at_the_caret()
+    {
+        var window = OpenWindow();
+        window.Editor.Document.Text = "|a|b|\n|-|-|\n|1|22|";
+        window.Editor.CaretOffset = 0;
+
+        window.KeyPressQwerty(PhysicalKey.T, RawInputModifiers.Control | RawInputModifiers.Shift);
+
+        Assert.Equal("| a   | b   |\n| --- | --- |\n| 1   | 22  |", window.Editor.Text);
+
+        CleanClose(window);
+    }
+
+    [AvaloniaFact]
     public void Window_renders_a_real_frame()
     {
         var window = OpenWindow();

@@ -54,7 +54,7 @@ public partial class MainWindow
 
     private void ShowWelcomeDocument()
     {
-        SetDocumentText(WelcomeText, null);
+        SetDocumentText(Core.TableFormatter.FormatAllTables(WelcomeText), null);
         SchedulePreviewRefresh();
     }
 

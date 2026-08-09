@@ -64,6 +64,8 @@
         <MenuItem x:Name="MenuOrdered" Header="_Numbered List" Click="OnOrderedList" />
         <MenuItem x:Name="MenuTask" Header="_Task List" Click="OnTaskList" />
         <MenuItem x:Name="MenuQuote" Header="Block_quote" Click="OnBlockquote" />
+        <Separator />
+        <MenuItem x:Name="MenuFormatTable" Header="Format Ta_ble" Click="OnFormatTable" />
       </MenuItem>
       <MenuItem Header="_Insert">
         <MenuItem x:Name="MenuLink" Header="_Link…" Click="OnInsertLink" />

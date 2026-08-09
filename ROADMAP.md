@@ -56,8 +56,15 @@ Each phase lands as its own commit (pushed to `origin/main`) with tests where lo
 - [x] Headless UI test project (Avalonia.Headless + Skia frame capture)
 - [x] Window-capture screenshot tooling for design iteration
 
+## Phase 10 — Syntax concealment (full Typora behavior) ✅
+- [x] Markers hidden off the caret line: heading hashes, emphasis, backticks, link plumbing, fences
+- [x] Real glyphs: ☑/☐ checkboxes, • bullets, ▏ quote bars
+- [x] Tables as aligned mono grids; `TableFormatter` (pure, tested) + Format Table command (`Ctrl/Cmd+Shift+T`)
+- [x] Caret-line reveal with per-line redraw
+
 ## Backlog / ideas (post-1.0)
-- Hide syntax markers entirely when the caret is on another line (full Typora behavior)
+- Click-to-toggle task checkboxes
+- Render `---` horizontal rules as a drawn line
 - Autosave, session restore, multiple tabs
 - Spell check
 - Export to PDF
