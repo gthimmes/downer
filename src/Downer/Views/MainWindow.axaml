@@ -1,8 +1,55 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ae="using:AvaloniaEdit"
         x:Class="Downer.Views.MainWindow"
         Title="Downer"
         Width="1200" Height="780"
         WindowStartupLocation="CenterScreen">
-  <TextBlock Text="Downer" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+  <DockPanel>
+
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_File">
+        <MenuItem x:Name="MenuNew" Header="_New" Click="OnNew" />
+        <MenuItem x:Name="MenuOpen" Header="_Open…" Click="OnOpen" />
+        <MenuItem x:Name="RecentMenu" Header="Open _Recent" IsEnabled="False" />
+        <Separator />
+        <MenuItem x:Name="MenuSave" Header="_Save" Click="OnSave" />
+        <MenuItem x:Name="MenuSaveAs" Header="Save _As…" Click="OnSaveAs" />
+        <Separator />
+        <MenuItem Header="E_xit" Click="OnExit" />
+      </MenuItem>
+      <MenuItem Header="_Edit">
+        <MenuItem Header="_Undo" Click="OnUndo" InputGesture="Ctrl+Z" />
+        <MenuItem Header="_Redo" Click="OnRedo" InputGesture="Ctrl+Y" />
+        <Separator />
+        <MenuItem Header="Cu_t" Click="OnCut" InputGesture="Ctrl+X" />
+        <MenuItem Header="_Copy" Click="OnCopy" InputGesture="Ctrl+C" />
+        <MenuItem Header="_Paste" Click="OnPaste" InputGesture="Ctrl+V" />
+        <Separator />
+        <MenuItem Header="Select _All" Click="OnSelectAll" InputGesture="Ctrl+A" />
+      </MenuItem>
+    </Menu>
+
+    <Border DockPanel.Dock="Bottom"
+            BorderThickness="0,1,0,0"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            Padding="10,4">
+      <DockPanel>
+        <TextBlock x:Name="PositionText" DockPanel.Dock="Right" Text="Ln 1, Col 1" Margin="16,0,0,0" />
+        <TextBlock x:Name="CountsText" DockPanel.Dock="Right" Text="" Margin="16,0,0,0" />
+        <TextBlock x:Name="FileText" Text="Untitled" TextTrimming="CharacterEllipsis" />
+      </DockPanel>
+    </Border>
+
+    <ae:TextEditor x:Name="Editor"
+                   FontFamily="Cascadia Code,Consolas,Menlo,DejaVu Sans Mono,monospace"
+                   FontSize="14"
+                   ShowLineNumbers="True"
+                   WordWrap="True"
+                   HorizontalScrollBarVisibility="Disabled"
+                   VerticalScrollBarVisibility="Auto"
+                   Padding="8,4" />
+
+  </DockPanel>
 </Window>
