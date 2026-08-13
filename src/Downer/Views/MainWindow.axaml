@@ -30,6 +30,7 @@
         <MenuItem x:Name="MenuReopenLast" Header="Reopen Last File on Star_tup" Click="OnToggleReopenLast" ToggleType="CheckBox" IsChecked="True" />
         <Separator />
         <MenuItem Header="_Export as HTML…" Click="OnExportHtml" />
+        <MenuItem Header="Export as _PDF…" Click="OnExportPdf" />
         <Separator />
         <MenuItem Header="E_xit" Click="OnExit" />
       </MenuItem>

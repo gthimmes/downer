@@ -115,7 +115,45 @@ public partial class MainWindow
         return await WriteToFileAsync(path);
     }
 
+    private static readonly FilePickerFileType PdfFileType = new("PDF")
+    {
+        Patterns = new[] { "*.pdf" },
+        AppleUniformTypeIdentifiers = new[] { "com.adobe.pdf" },
+        MimeTypes = new[] { "application/pdf" },
+    };
+
     private void OnExportHtml(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => _ = ExportHtmlAsync();
+
+    private void OnExportPdf(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => _ = ExportPdfAsync();
+
+    private async Task ExportPdfAsync()
+    {
+        var baseName = _currentFilePath is null
+            ? "Untitled"
+            : Path.GetFileNameWithoutExtension(_currentFilePath);
+
+        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Export as PDF",
+            SuggestedFileName = baseName + ".pdf",
+            DefaultExtension = "pdf",
+            FileTypeChoices = new[] { PdfFileType },
+        });
+
+        var path = file?.TryGetLocalPath();
+        if (path is null)
+            return;
+
+        try
+        {
+            var pdf = Core.PdfExporter.Export(Editor.Text, baseName);
+            await File.WriteAllBytesAsync(path, pdf);
+        }
+        catch (Exception ex)
+        {
+            await AppDialogs.InfoAsync(this, "Could not export PDF", ex.Message);
+        }
+    }
 
     private async Task ExportHtmlAsync()
     {
