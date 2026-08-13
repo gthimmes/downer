@@ -88,6 +88,7 @@
         <Separator />
         <MenuItem x:Name="MenuWordWrap" Header="_Word Wrap" Click="OnToggleWordWrap" ToggleType="CheckBox" IsChecked="True" />
         <MenuItem x:Name="MenuLineNumbers" Header="Line _Numbers" Click="OnToggleLineNumbers" ToggleType="CheckBox" IsChecked="True" />
+        <MenuItem x:Name="MenuSpellCheck" Header="Spell _Check" Click="OnToggleSpellCheck" ToggleType="CheckBox" IsChecked="True" />
         <Separator />
         <MenuItem x:Name="MenuZoomIn" Header="Zoom _In" Click="OnZoomIn" />
         <MenuItem x:Name="MenuZoomOut" Header="Zoom _Out" Click="OnZoomOut" />

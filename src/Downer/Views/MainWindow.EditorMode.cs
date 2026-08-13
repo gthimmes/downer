@@ -89,6 +89,7 @@ public partial class MainWindow
         var changed = !states.AsSpan().SequenceEqual(_lastFenceStates);
         _lastFenceStates = states;
         _richTransformer.FenceStates = states;
+        _spellTransformer.FenceStates = states;
 
         if (changed && !force)
             Editor.TextArea.TextView.Redraw();

@@ -22,6 +22,7 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.Equal("System", service.Settings.Theme);
         Assert.True(service.Settings.WordWrap);
         Assert.False(service.Settings.Autosave);
+        Assert.True(service.Settings.SpellCheck);
         Assert.True(service.Settings.ReopenLastFile);
         Assert.Null(service.Settings.LastFilePath);
         Assert.Empty(service.Settings.RecentFiles);
@@ -37,6 +38,7 @@ public sealed class SettingsServiceTests : IDisposable
         writer.Settings.EditorMode = "Source";
         writer.Settings.WordWrap = false;
         writer.Settings.Autosave = true;
+        writer.Settings.SpellCheck = false;
         writer.Settings.ReopenLastFile = false;
         writer.Settings.LastFilePath = "C:\\notes\\last.md";
         writer.Settings.FontSize = 18;
@@ -51,6 +53,7 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.Equal("Source", reader.Settings.EditorMode);
         Assert.False(reader.Settings.WordWrap);
         Assert.True(reader.Settings.Autosave);
+        Assert.False(reader.Settings.SpellCheck);
         Assert.False(reader.Settings.ReopenLastFile);
         Assert.Equal("C:\\notes\\last.md", reader.Settings.LastFilePath);
         Assert.Equal(18, reader.Settings.FontSize);

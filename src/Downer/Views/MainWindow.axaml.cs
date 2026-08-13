@@ -31,6 +31,7 @@ public partial class MainWindow : Window
         SetUpEditor();
         SetUpEditingBehaviors();
         SetUpAutosave();
+        SetUpSpellCheck();
         SetUpPreview();
         SetUpViewOptions();
         SetUpSettings();

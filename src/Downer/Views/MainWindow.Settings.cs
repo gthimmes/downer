@@ -31,6 +31,7 @@ public partial class MainWindow
         if (Editor.WordWrap != s.WordWrap)
             OnToggleWordWrap(null, null!);
         SetAutosaveEnabled(s.Autosave);
+        SetSpellCheckEnabled(s.SpellCheck);
         _reopenLastFile = s.ReopenLastFile;
         MenuReopenLast.IsChecked = _reopenLastFile;
         _lineNumbersPreference = s.ShowLineNumbers;
@@ -59,6 +60,7 @@ public partial class MainWindow
         s.EditorMode = _editorMode.ToString();
         s.WordWrap = Editor.WordWrap;
         s.Autosave = _autosaveEnabled;
+        s.SpellCheck = _spellCheckEnabled;
         s.ReopenLastFile = _reopenLastFile;
         s.LastFilePath = _currentFilePath;
         s.ShowLineNumbers = _lineNumbersPreference;

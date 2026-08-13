@@ -9,6 +9,7 @@ public sealed class AppSettings
     public string EditorMode { get; set; } = "Rich";
     public bool WordWrap { get; set; } = true;
     public bool Autosave { get; set; }
+    public bool SpellCheck { get; set; } = true;
     public bool ReopenLastFile { get; set; } = true;
     public string? LastFilePath { get; set; }
     public bool ShowLineNumbers { get; set; } = true;
