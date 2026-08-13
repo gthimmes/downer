@@ -21,6 +21,7 @@ public sealed class SettingsServiceTests : IDisposable
 
         Assert.Equal("System", service.Settings.Theme);
         Assert.True(service.Settings.WordWrap);
+        Assert.False(service.Settings.Autosave);
         Assert.Empty(service.Settings.RecentFiles);
     }
 
@@ -33,6 +34,7 @@ public sealed class SettingsServiceTests : IDisposable
         writer.Settings.ViewMode = "PreviewOnly";
         writer.Settings.EditorMode = "Source";
         writer.Settings.WordWrap = false;
+        writer.Settings.Autosave = true;
         writer.Settings.FontSize = 18;
         writer.Settings.RecentFiles.Add("C:\\notes\\a.md");
         writer.Save();
@@ -44,6 +46,7 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.Equal("PreviewOnly", reader.Settings.ViewMode);
         Assert.Equal("Source", reader.Settings.EditorMode);
         Assert.False(reader.Settings.WordWrap);
+        Assert.True(reader.Settings.Autosave);
         Assert.Equal(18, reader.Settings.FontSize);
         Assert.Equal(new[] { "C:\\notes\\a.md" }, reader.Settings.RecentFiles);
     }

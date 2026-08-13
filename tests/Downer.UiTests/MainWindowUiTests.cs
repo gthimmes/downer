@@ -14,15 +14,13 @@ namespace Downer.UiTests;
 /// </summary>
 public class MainWindowUiTests
 {
-    static MainWindowUiTests()
-    {
-        // Never touch the user's real settings from tests.
-        SettingsService.OverrideDirectory =
-            Path.Combine(Path.GetTempPath(), "downer-uitests-" + Guid.NewGuid().ToString("N"));
-    }
-
     private static MainWindow OpenWindow()
     {
+        // Fresh settings dir per test: windows persist settings on close, and no
+        // test should inherit another's (or the user's) state.
+        SettingsService.OverrideDirectory =
+            Path.Combine(Path.GetTempPath(), "downer-uitests-" + Guid.NewGuid().ToString("N"));
+
         var window = new MainWindow();
         window.Show();
         // Flush the Loaded event (welcome document, shortcuts) so tests start deterministic.
@@ -171,6 +169,43 @@ public class MainWindowUiTests
         // Plain text never toggles.
         Assert.False(window.ToggleCheckboxAt(2));
 
+        CleanClose(window);
+    }
+
+    [AvaloniaFact]
+    public async Task Autosave_writes_a_titled_document_after_edits()
+    {
+        var window = OpenWindow();
+        var path = Path.Combine(Path.GetTempPath(), $"downer-autosave-{Guid.NewGuid():N}.md");
+        File.WriteAllText(path, "start");
+        try
+        {
+            await window.LoadFileAsync(path);
+            window.SetAutosaveEnabled(true);
+
+            window.Editor.Document.Insert(window.Editor.Document.TextLength, " plus more");
+            await window.AutosaveNowAsync();
+
+            Assert.Equal("start plus more", File.ReadAllText(path));
+            // The document is clean again, so closing needs no dialog.
+            window.Close();
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [AvaloniaFact]
+    public async Task Autosave_never_touches_untitled_documents()
+    {
+        var window = OpenWindow();
+        window.SetAutosaveEnabled(true);
+        window.Editor.Document.Text = "scratch";
+
+        await window.AutosaveNowAsync();
+
+        Assert.Equal("scratch", window.Editor.Text);
         CleanClose(window);
     }
 

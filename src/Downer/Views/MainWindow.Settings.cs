@@ -29,6 +29,7 @@ public partial class MainWindow
         SetFontSize(s.FontSize);
         if (Editor.WordWrap != s.WordWrap)
             OnToggleWordWrap(null, null!);
+        SetAutosaveEnabled(s.Autosave);
         _lineNumbersPreference = s.ShowLineNumbers;
         MenuLineNumbers.IsChecked = _lineNumbersPreference;
 
@@ -54,6 +55,7 @@ public partial class MainWindow
         s.ViewMode = _viewMode.ToString();
         s.EditorMode = _editorMode.ToString();
         s.WordWrap = Editor.WordWrap;
+        s.Autosave = _autosaveEnabled;
         s.ShowLineNumbers = _lineNumbersPreference;
         s.FontSize = Editor.FontSize;
         _settingsService.Save();

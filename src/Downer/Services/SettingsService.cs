@@ -8,6 +8,7 @@ public sealed class AppSettings
     public string ViewMode { get; set; } = "EditorOnly";
     public string EditorMode { get; set; } = "Rich";
     public bool WordWrap { get; set; } = true;
+    public bool Autosave { get; set; }
     public bool ShowLineNumbers { get; set; } = true;
     public double FontSize { get; set; } = 14;
     public List<string> RecentFiles { get; set; } = new();

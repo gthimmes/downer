@@ -25,6 +25,9 @@ public partial class MainWindow
         if (!IsDirty)
             return true;
 
+        if (AutosaveApplies)
+            return await SaveAsync();
+
         var choice = await AppDialogs.ConfirmUnsavedAsync(this, DisplayFileName);
         return choice switch
         {
@@ -59,7 +62,7 @@ public partial class MainWindow
             await LoadFileAsync(path);
     }
 
-    private async Task LoadFileAsync(string path)
+    internal async Task LoadFileAsync(string path)
     {
         try
         {

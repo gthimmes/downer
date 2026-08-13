@@ -30,6 +30,7 @@ public partial class MainWindow : Window
 
         SetUpEditor();
         SetUpEditingBehaviors();
+        SetUpAutosave();
         SetUpPreview();
         SetUpViewOptions();
         SetUpSettings();
@@ -130,6 +131,7 @@ public partial class MainWindow : Window
         UpdateWindowChrome();
         RefreshFenceStates();
         SchedulePreviewRefresh();
+        ScheduleAutosave();
     }
 
     private void UpdateWindowChrome()
@@ -169,6 +171,17 @@ public partial class MainWindow : Window
             e.Cancel = true;
             Dispatcher.UIThread.Post(async () =>
             {
+                // With autosave on, a titled document just saves instead of prompting.
+                if (AutosaveApplies)
+                {
+                    if (await SaveAsync())
+                    {
+                        _forceClose = true;
+                        Close();
+                    }
+                    return;
+                }
+
                 var choice = await AppDialogs.ConfirmUnsavedAsync(this, DisplayFileName);
                 if (choice == UnsavedChoice.Cancel)
                     return;
