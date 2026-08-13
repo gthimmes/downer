@@ -305,6 +305,46 @@ public class MarkdownSpanParserTests
         Assert.Equal(FenceLineState.Delimiter, states[2]);
     }
 
+    // ---- Horizontal rules ----
+
+    [Theory]
+    [InlineData("---")]
+    [InlineData("----------")]
+    [InlineData("***")]
+    [InlineData("___")]
+    [InlineData("- - -")]
+    [InlineData("  ***  ")]
+    public void Thematic_breaks_are_one_rule_span(string line)
+    {
+        var r = MarkdownSpanParser.ParseLine(line);
+
+        var rule = Single(r, SpanKind.HorizontalRule, isMarker: true);
+        Assert.Equal(line.Length - line.TrimStart().Length, rule.Start);
+        Assert.Equal(line.Trim().Length, rule.Length);
+        Assert.Single(r.Spans);
+    }
+
+    [Theory]
+    [InlineData("--")]              // too short
+    [InlineData("- item")]          // bullet
+    [InlineData("-*-")]             // mixed characters
+    [InlineData("--- text")]        // trailing content
+    [InlineData("    ---")]         // 4+ spaces indent = code, not a rule
+    public void Near_misses_are_not_rules(string line)
+    {
+        Assert.DoesNotContain(
+            MarkdownSpanParser.ParseLine(line).Spans,
+            s => s.Kind == SpanKind.HorizontalRule);
+    }
+
+    [Fact]
+    public void Rule_inside_fence_stays_plain()
+    {
+        var r = MarkdownSpanParser.ParseLine("---", FenceLineState.Inside);
+
+        Assert.Empty(r.Spans);
+    }
+
     [Fact]
     public void Empty_line_parses_cleanly()
     {

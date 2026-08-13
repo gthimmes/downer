@@ -17,6 +17,7 @@ public enum SpanKind
     LinkPunctuation,
     TablePipe,
     TableSeparator,
+    HorizontalRule,
 }
 
 /// <summary>A styled region of a single line. Marker spans carry syntax; content spans carry text to style.</summary>
@@ -124,6 +125,9 @@ public static partial class MarkdownSpanParser
     [GeneratedRegex(@"^\s*\|(?:[ \t]*:?-+:?[ \t]*\|)+[ \t]*$")]
     private static partial Regex TableSeparatorRowRegex();
 
+    [GeneratedRegex(@"^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$")]
+    private static partial Regex ThematicBreakRegex();
+
     public static LineSpans ParseLine(string line, FenceLineState fenceState = FenceLineState.Outside)
     {
         var spans = new List<StyledSpan>();
@@ -133,6 +137,14 @@ public static partial class MarkdownSpanParser
         var claimed = new bool[line.Length];
         var headingLevel = 0;
         var contentStart = 0;
+
+        // Thematic breaks (---, ***, ___) are a single rule span; nothing else applies.
+        if (ThematicBreakRegex().IsMatch(line))
+        {
+            var start = line.Length - line.TrimStart().Length;
+            AddClaimed(spans, claimed, start, line.TrimEnd().Length - start, SpanKind.HorizontalRule, isMarker: true);
+            return new LineSpans(0, fenceState, spans);
+        }
 
         // Table rows: pipes become grid markers; cells still get inline styles.
         if (line.TrimStart().StartsWith('|'))

@@ -83,6 +83,10 @@ public sealed class MarkerHidingGenerator : VisualLineElementGenerator
                     var depth = text.AsSpan(span.Start, span.Length).Count('>');
                     _replacements.Add((span.Start, span.Length, new string('▏', Math.Max(1, depth)) + " "));
                     break;
+
+                case SpanKind.HorizontalRule:
+                    _replacements.Add((span.Start, span.Length, new string('─', 40)));
+                    break;
             }
         }
 
