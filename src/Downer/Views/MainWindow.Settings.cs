@@ -19,6 +19,7 @@ public partial class MainWindow
 {
     private SettingsService _settingsService = null!;
     private ThemePreference _themePreference = ThemePreference.System;
+    private bool _reopenLastFile = true;
 
     private void SetUpSettings()
     {
@@ -30,6 +31,8 @@ public partial class MainWindow
         if (Editor.WordWrap != s.WordWrap)
             OnToggleWordWrap(null, null!);
         SetAutosaveEnabled(s.Autosave);
+        _reopenLastFile = s.ReopenLastFile;
+        MenuReopenLast.IsChecked = _reopenLastFile;
         _lineNumbersPreference = s.ShowLineNumbers;
         MenuLineNumbers.IsChecked = _lineNumbersPreference;
 
@@ -56,11 +59,19 @@ public partial class MainWindow
         s.EditorMode = _editorMode.ToString();
         s.WordWrap = Editor.WordWrap;
         s.Autosave = _autosaveEnabled;
+        s.ReopenLastFile = _reopenLastFile;
+        s.LastFilePath = _currentFilePath;
         s.ShowLineNumbers = _lineNumbersPreference;
         s.FontSize = Editor.FontSize;
         _settingsService.Save();
 
         base.OnClosed(e);
+    }
+
+    private void OnToggleReopenLast(object? sender, RoutedEventArgs e)
+    {
+        _reopenLastFile = !_reopenLastFile;
+        MenuReopenLast.IsChecked = _reopenLastFile;
     }
 
     // ---- Theme ----

@@ -70,8 +70,12 @@ public partial class MainWindow : Window
         Editor.Focus();
 
         var fileArg = _startupArgs.FirstOrDefault(File.Exists);
+        var lastFile = _settingsService.Settings.LastFilePath;
+
         if (fileArg is not null)
             await LoadFileAsync(Path.GetFullPath(fileArg));
+        else if (_reopenLastFile && lastFile is not null && File.Exists(lastFile))
+            await LoadFileAsync(lastFile);
         else
             ShowWelcomeDocument();
     }

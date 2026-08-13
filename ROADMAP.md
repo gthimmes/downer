@@ -62,10 +62,14 @@ Each phase lands as its own commit (pushed to `origin/main`) with tests where lo
 - [x] Tables as aligned mono grids; `TableFormatter` (pure, tested) + Format Table command (`Ctrl/Cmd+Shift+T`)
 - [x] Caret-line reveal with per-line redraw
 
+## Phase 11 — Interaction & resilience ✅
+- [x] Click-to-toggle task checkboxes in formatted mode (pure hit-testing, caret line exempt)
+- [x] `---` / `***` / `___` render as drawn horizontal rules
+- [x] Autosave for titled documents (idle-debounced, quiet, persisted toggle)
+- [x] Session restore: reopen last file on startup (persisted toggle)
+
 ## Backlog / ideas (post-1.0)
-- Click-to-toggle task checkboxes
-- Render `---` horizontal rules as a drawn line
-- Autosave, session restore, multiple tabs
+- Multiple tabs
 - Spell check
 - Export to PDF
 - Synchronized bidirectional scroll

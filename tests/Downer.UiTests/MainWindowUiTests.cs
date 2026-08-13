@@ -209,6 +209,60 @@ public class MainWindowUiTests
         CleanClose(window);
     }
 
+    private static void PumpUntil(Func<bool> condition)
+    {
+        for (var i = 0; i < 100 && !condition(); i++)
+        {
+            Thread.Sleep(10);
+            Dispatcher.UIThread.RunJobs();
+        }
+        Assert.True(condition());
+    }
+
+    [AvaloniaFact]
+    public async Task Last_file_reopens_on_startup()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"downer-restore-{Guid.NewGuid():N}.md");
+        File.WriteAllText(path, "# restored content");
+        try
+        {
+            var first = OpenWindow();
+            await first.LoadFileAsync(path);
+            first.Close(); // persists LastFilePath into this test's settings dir
+
+            // Same settings dir on purpose: bypass OpenWindow's per-test isolation.
+            var second = new MainWindow();
+            second.Show();
+            PumpUntil(() => second.Editor.Text.Contains("restored content"));
+
+            Assert.Equal("# restored content", second.Editor.Text);
+            CleanClose(second);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [AvaloniaFact]
+    public async Task Missing_last_file_falls_back_to_welcome()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"downer-restore-{Guid.NewGuid():N}.md");
+        File.WriteAllText(path, "temporary");
+
+        var first = OpenWindow();
+        await first.LoadFileAsync(path);
+        first.Close();
+        File.Delete(path);
+
+        var second = new MainWindow();
+        second.Show();
+        PumpUntil(() => second.Editor.Text.Length > 0);
+
+        Assert.Contains("Welcome to Downer", second.Editor.Text);
+        CleanClose(second);
+    }
+
     [AvaloniaFact]
     public void Window_renders_a_real_frame()
     {
