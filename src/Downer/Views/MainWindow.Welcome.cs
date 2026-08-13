@@ -23,21 +23,21 @@ public partial class MainWindow
 
     private async void OnDrop(object? sender, DragEventArgs e)
     {
-        var path = e.Data.GetFiles()?.FirstOrDefault()?.TryGetLocalPath();
-        if (path is null || !File.Exists(path))
-            return;
-
-        if (await ConfirmLoseChangesAsync())
-            await LoadFileAsync(path);
+        foreach (var item in e.Data.GetFiles() ?? Enumerable.Empty<IStorageItem>())
+        {
+            var path = item.TryGetLocalPath();
+            if (path is not null && File.Exists(path))
+                await LoadFileAsync(path); // opens in a tab, nothing to confirm
+        }
     }
 #pragma warning restore CS0618
 
     // ---- Help menu ----
 
-    private async void OnWelcomeGuide(object? sender, RoutedEventArgs e)
+    private void OnWelcomeGuide(object? sender, RoutedEventArgs e)
     {
-        if (await ConfirmLoseChangesAsync())
-            ShowWelcomeDocument();
+        ActivateTab(TabForNewContent());
+        ShowWelcomeDocument();
     }
 
     private async void OnAbout(object? sender, RoutedEventArgs e)
@@ -55,6 +55,7 @@ public partial class MainWindow
     private void ShowWelcomeDocument()
     {
         SetDocumentText(Core.TableFormatter.FormatAllTables(WelcomeText), null);
+        _activeTab.IsWelcome = true; // pristine welcome tabs are reusable for opens
         SchedulePreviewRefresh();
     }
 

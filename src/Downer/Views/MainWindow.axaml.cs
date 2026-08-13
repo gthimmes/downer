@@ -16,7 +16,6 @@ public partial class MainWindow : Window
     private RegistryOptions _registryOptions = null!;
     private TextMate.Installation? _textMate;
 
-    private string? _currentFilePath;
     private bool _forceClose;
 
     public MainWindow() : this(Array.Empty<string>())
@@ -28,6 +27,7 @@ public partial class MainWindow : Window
         _startupArgs = args;
         InitializeComponent();
 
+        SetUpTabs();
         SetUpEditor();
         SetUpEditingBehaviors();
         SetUpAutosave();
@@ -42,8 +42,7 @@ public partial class MainWindow : Window
 
     private bool IsDirty => !Editor.Document.UndoStack.IsOriginalFile;
 
-    private string DisplayFileName =>
-        _currentFilePath is null ? "Untitled" : Path.GetFileName(_currentFilePath);
+    private string DisplayFileName => _activeTab.Title;
 
     private void SetUpEditor()
     {
@@ -71,14 +70,29 @@ public partial class MainWindow : Window
         Editor.Focus();
 
         var fileArg = _startupArgs.FirstOrDefault(File.Exists);
-        var lastFile = _settingsService.Settings.LastFilePath;
-
         if (fileArg is not null)
+        {
             await LoadFileAsync(Path.GetFullPath(fileArg));
-        else if (_reopenLastFile && lastFile is not null && File.Exists(lastFile))
-            await LoadFileAsync(lastFile);
-        else
-            ShowWelcomeDocument();
+            return;
+        }
+
+        if (_reopenLastFile)
+        {
+            var s = _settingsService.Settings;
+            var files = s.OpenFiles.Where(File.Exists).ToList();
+            if (files.Count == 0 && s.LastFilePath is not null && File.Exists(s.LastFilePath))
+                files.Add(s.LastFilePath); // settings written before tabs existed
+
+            foreach (var file in files)
+                await LoadFileAsync(file);
+            if (s.LastFilePath is not null && File.Exists(s.LastFilePath))
+                await LoadFileAsync(s.LastFilePath); // re-activates the tab that was in front
+
+            if (files.Count > 0)
+                return;
+        }
+
+        ShowWelcomeDocument();
     }
 
     private void SetUpShortcuts()
@@ -97,8 +111,21 @@ public partial class MainWindow : Window
 
         Shortcut(MenuNew, Key.N, cmd, () => _ = NewFileAsync());
         Shortcut(MenuOpen, Key.O, cmd, () => _ = OpenFileAsync());
+        Shortcut(MenuCloseTab, Key.W, cmd, () => _ = CloseTabAsync(_activeTab));
         Shortcut(MenuSave, Key.S, cmd, () => _ = SaveAsync());
         Shortcut(MenuSaveAs, Key.S, cmd | KeyModifiers.Shift, () => _ = SaveAsAsync());
+
+        // Tab cycling has no menu items; bind the gestures directly.
+        KeyBindings.Add(new KeyBinding
+        {
+            Gesture = new KeyGesture(Key.Tab, KeyModifiers.Control),
+            Command = new SimpleCommand(() => CycleTab(1)),
+        });
+        KeyBindings.Add(new KeyBinding
+        {
+            Gesture = new KeyGesture(Key.Tab, KeyModifiers.Control | KeyModifiers.Shift),
+            Command = new SimpleCommand(() => CycleTab(-1)),
+        });
 
         Shortcut(MenuModeSource, Key.E, cmd, ToggleEditorMode);
         Shortcut(MenuViewEditor, Key.D1, cmd, () => SetViewMode(ViewMode.EditorOnly));
@@ -143,7 +170,8 @@ public partial class MainWindow : Window
     {
         var dirtyMarker = IsDirty ? "● " : "";
         Title = $"{dirtyMarker}{DisplayFileName} — Downer";
-        FileText.Text = _currentFilePath ?? "Untitled";
+        FileText.Text = CurrentFilePath ?? "Untitled";
+        RebuildTabStrip();
     }
 
     private void UpdateCaretStatus()
@@ -171,27 +199,29 @@ public partial class MainWindow : Window
 
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        if (!_forceClose && IsDirty)
+        if (!_forceClose && _tabs.Any(t => t.IsDirty))
         {
             e.Cancel = true;
             Dispatcher.UIThread.Post(async () =>
             {
-                // With autosave on, a titled document just saves instead of prompting.
-                if (AutosaveApplies)
+                foreach (var tab in _tabs.Where(t => t.IsDirty).ToList())
                 {
-                    if (await SaveAsync())
-                    {
-                        _forceClose = true;
-                        Close();
-                    }
-                    return;
-                }
+                    ActivateTab(tab); // show the user what they are deciding about
 
-                var choice = await AppDialogs.ConfirmUnsavedAsync(this, DisplayFileName);
-                if (choice == UnsavedChoice.Cancel)
-                    return;
-                if (choice == UnsavedChoice.Save && !await SaveAsync())
-                    return;
+                    // With autosave on, a titled document just saves instead of prompting.
+                    if (AutosaveApplies)
+                    {
+                        if (!await SaveAsync())
+                            return;
+                        continue;
+                    }
+
+                    var choice = await AppDialogs.ConfirmUnsavedAsync(this, tab.Title);
+                    if (choice == UnsavedChoice.Cancel)
+                        return;
+                    if (choice == UnsavedChoice.Save && !await SaveAsync())
+                        return;
+                }
 
                 _forceClose = true;
                 Close();

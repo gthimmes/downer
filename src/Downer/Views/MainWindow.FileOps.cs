@@ -19,54 +19,50 @@ public partial class MainWindow
         MimeTypes = new[] { "text/html" },
     };
 
-    /// <summary>Asks the user to save if dirty. Returns true when it is OK to proceed.</summary>
-    private async Task<bool> ConfirmLoseChangesAsync()
+    /// <summary>File > New Tab: a fresh untitled document, no questions asked.</summary>
+    private Task NewFileAsync()
     {
-        if (!IsDirty)
-            return true;
-
-        if (AutosaveApplies)
-            return await SaveAsync();
-
-        var choice = await AppDialogs.ConfirmUnsavedAsync(this, DisplayFileName);
-        return choice switch
-        {
-            UnsavedChoice.Save => await SaveAsync(),
-            UnsavedChoice.DontSave => true,
-            _ => false,
-        };
-    }
-
-    private async Task NewFileAsync()
-    {
-        if (!await ConfirmLoseChangesAsync())
-            return;
-
-        SetDocumentText("", null);
+        ActivateTab(AddTab());
+        return Task.CompletedTask;
     }
 
     private async Task OpenFileAsync()
     {
-        if (!await ConfirmLoseChangesAsync())
-            return;
-
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Open Markdown File",
-            AllowMultiple = false,
+            AllowMultiple = true,
             FileTypeFilter = new[] { MarkdownFileType, FilePickerFileTypes.TextPlain, FilePickerFileTypes.All },
         });
 
-        var path = files.FirstOrDefault()?.TryGetLocalPath();
-        if (path is not null)
-            await LoadFileAsync(path);
+        foreach (var file in files)
+        {
+            var path = file.TryGetLocalPath();
+            if (path is not null)
+                await LoadFileAsync(path);
+        }
     }
 
+    /// <summary>
+    /// Opens a file into a tab: an existing tab with the same path is activated,
+    /// a reusable (empty/welcome) active tab is filled, anything else gets a new tab.
+    /// </summary>
     internal async Task LoadFileAsync(string path)
     {
+        path = Path.GetFullPath(path);
+
+        var existing = _tabs.FirstOrDefault(t =>
+            t.FilePath is not null && string.Equals(t.FilePath, path, StringComparison.OrdinalIgnoreCase));
+        if (existing is not null)
+        {
+            ActivateTab(existing);
+            return;
+        }
+
         try
         {
             var text = await File.ReadAllTextAsync(path);
+            ActivateTab(TabForNewContent());
             SetDocumentText(text, path);
             RememberRecentFile(path);
         }
@@ -84,7 +80,8 @@ public partial class MainWindow
         Editor.Document.UndoStack.ClearAll();
         Editor.Document.UndoStack.MarkAsOriginalFile();
         Editor.CaretOffset = 0;
-        _currentFilePath = path;
+        CurrentFilePath = path;
+        _activeTab.IsWelcome = false;
         UpdateWindowChrome();
         UpdateCaretStatus();
     }
@@ -92,10 +89,10 @@ public partial class MainWindow
     /// <summary>Saves to the current path, or falls back to Save As. Returns true on success.</summary>
     private async Task<bool> SaveAsync()
     {
-        if (_currentFilePath is null)
+        if (CurrentFilePath is null)
             return await SaveAsAsync();
 
-        return await WriteToFileAsync(_currentFilePath);
+        return await WriteToFileAsync(CurrentFilePath);
     }
 
     private async Task<bool> SaveAsAsync()
@@ -103,7 +100,7 @@ public partial class MainWindow
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = "Save Markdown File",
-            SuggestedFileName = _currentFilePath is null ? "Untitled.md" : Path.GetFileName(_currentFilePath),
+            SuggestedFileName = CurrentFilePath is null ? "Untitled.md" : Path.GetFileName(CurrentFilePath),
             DefaultExtension = "md",
             FileTypeChoices = new[] { MarkdownFileType, FilePickerFileTypes.TextPlain },
         });
@@ -128,9 +125,9 @@ public partial class MainWindow
 
     private async Task ExportPdfAsync()
     {
-        var baseName = _currentFilePath is null
+        var baseName = CurrentFilePath is null
             ? "Untitled"
-            : Path.GetFileNameWithoutExtension(_currentFilePath);
+            : Path.GetFileNameWithoutExtension(CurrentFilePath);
 
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
@@ -157,9 +154,9 @@ public partial class MainWindow
 
     private async Task ExportHtmlAsync()
     {
-        var baseName = _currentFilePath is null
+        var baseName = CurrentFilePath is null
             ? "Untitled"
-            : Path.GetFileNameWithoutExtension(_currentFilePath);
+            : Path.GetFileNameWithoutExtension(CurrentFilePath);
 
         var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
@@ -189,7 +186,7 @@ public partial class MainWindow
         try
         {
             await File.WriteAllTextAsync(path, Editor.Text);
-            _currentFilePath = path;
+            CurrentFilePath = path;
             Editor.Document.UndoStack.MarkAsOriginalFile();
             UpdateWindowChrome();
             RememberRecentFile(path);

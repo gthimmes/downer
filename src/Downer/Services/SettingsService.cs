@@ -12,6 +12,7 @@ public sealed class AppSettings
     public bool SpellCheck { get; set; } = true;
     public bool ReopenLastFile { get; set; } = true;
     public string? LastFilePath { get; set; }
+    public List<string> OpenFiles { get; set; } = new();
     public bool ShowLineNumbers { get; set; } = true;
     public double FontSize { get; set; } = 14;
     public List<string> RecentFiles { get; set; } = new();

@@ -9,7 +9,7 @@ public partial class MainWindow
     private bool _autosaveEnabled;
 
     /// <summary>Autosave only ever writes to a document that already has a path.</summary>
-    private bool AutosaveApplies => _autosaveEnabled && _currentFilePath is not null;
+    private bool AutosaveApplies => _autosaveEnabled && CurrentFilePath is not null;
 
     private void SetUpAutosave()
     {
@@ -50,16 +50,18 @@ public partial class MainWindow
         if (!AutosaveApplies || !IsDirty)
             return;
 
-        var path = _currentFilePath!;
-        var text = Editor.Text;
+        var tab = _activeTab;
+        var path = tab.FilePath!;
+        var text = tab.Document.Text;
         try
         {
             await File.WriteAllTextAsync(path, text);
 
-            // Only mark clean if nothing changed while the write was in flight.
-            if (path == _currentFilePath && string.Equals(text, Editor.Text, StringComparison.Ordinal))
+            // Only mark clean if this tab is unchanged since the write started
+            // (the user may have kept typing or switched tabs mid-write).
+            if (path == tab.FilePath && string.Equals(text, tab.Document.Text, StringComparison.Ordinal))
             {
-                Editor.Document.UndoStack.MarkAsOriginalFile();
+                tab.Document.UndoStack.MarkAsOriginalFile();
                 UpdateWindowChrome();
             }
         }

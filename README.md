@@ -11,10 +11,13 @@ A full-featured, platform-independent **markdown editor** for Windows, macOS, an
 - **Smart lists** — `Enter` continues lists (incrementing numbers, fresh checkboxes, preserved indent); `Enter` on an empty item exits the list
 - **Insertions** — links and images (URL-aware placeholders), tables, fenced code blocks, horizontal rules with proper blank-line padding
 - **Find & replace** — `Ctrl/Cmd+F` / `Ctrl/Cmd+H`
-- **Files** — open/save with dirty tracking and unsaved-changes guard, recent files menu, drag & drop, open from command line
-- **Export** — standalone HTML with embedded GitHub-flavored CSS (light + dark)
+- **Tabs** — multiple documents in one window (`Ctrl/Cmd+N` new, `Ctrl/Cmd+W` close, `Ctrl+Tab` cycle), with per-tab undo history and caret memory
+- **Spell check** — Hunspell with an embedded en_US dictionary; dotted red underlines on prose only (code, URLs, and identifiers are left alone)
+- **Files** — open/save with dirty tracking and unsaved-changes guard, recent files menu, drag & drop, open from command line, optional autosave for titled documents
+- **Session restore** — reopens all tabs from the previous session (toggleable)
+- **Export** — standalone HTML with embedded GitHub-flavored CSS (light + dark), and dependency-free PDF export
 - **Themes** — light / dark / follow-the-OS, applied to both the app and the editor's TextMate theme
-- **Persistence** — theme, view mode, wrap, line numbers, font size, and recents survive restarts
+- **Persistence** — theme, view mode, wrap, line numbers, font size, spell check, autosave, and recents survive restarts
 - **Status bar** — caret position plus live word / character / line counts
 
 Keyboard shortcuts use `Cmd` on macOS and `Ctrl` elsewhere, resolved from the platform's hotkey configuration at runtime.

@@ -62,7 +62,8 @@ public partial class MainWindow
         s.Autosave = _autosaveEnabled;
         s.SpellCheck = _spellCheckEnabled;
         s.ReopenLastFile = _reopenLastFile;
-        s.LastFilePath = _currentFilePath;
+        s.LastFilePath = CurrentFilePath;
+        s.OpenFiles = _tabs.Where(t => t.FilePath is not null).Select(t => t.FilePath!).ToList();
         s.ShowLineNumbers = _lineNumbersPreference;
         s.FontSize = Editor.FontSize;
         _settingsService.Save();
@@ -146,11 +147,7 @@ public partial class MainWindow
         {
             var captured = path;
             var item = new MenuItem { Header = path.Replace("_", "__") };
-            item.Click += async (_, _) =>
-            {
-                if (await ConfirmLoseChangesAsync())
-                    await LoadFileAsync(captured);
-            };
+            item.Click += async (_, _) => await LoadFileAsync(captured); // opens in a tab
             RecentMenu.Items.Add(item);
         }
 

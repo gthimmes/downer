@@ -68,8 +68,13 @@ Each phase lands as its own commit (pushed to `origin/main`) with tests where lo
 - [x] Autosave for titled documents (idle-debounced, quiet, persisted toggle)
 - [x] Session restore: reopen last file on startup (persisted toggle)
 
+## Phase 12 — Power features ✅
+- [x] Bidirectional scroll sync (pointer-owned panes, pure `ScrollSync` math)
+- [x] Spell check: Hunspell + embedded SCOWL en_US, dotted red underlines, prose-only (pure `SpellWords`)
+- [x] Export to PDF: dependency-free base-14 renderer (pure `PdfExporter`), WYSIWYG-style layout
+- [x] Multiple tabs: shared editor, per-tab documents/undo/caret, Ctrl+N/W/Tab, full-session restore
+
 ## Backlog / ideas (post-1.0)
-- Multiple tabs
-- Spell check
-- Export to PDF
-- Synchronized bidirectional scroll
+- Add-to-dictionary and per-language spell dictionaries
+- Real AFM font metrics for tighter PDF word spacing
+- Split view drag-out to a second window

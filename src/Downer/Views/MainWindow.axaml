@@ -19,9 +19,10 @@
 
     <Menu DockPanel.Dock="Top">
       <MenuItem Header="_File">
-        <MenuItem x:Name="MenuNew" Header="_New" Click="OnNew" />
+        <MenuItem x:Name="MenuNew" Header="_New Tab" Click="OnNew" />
         <MenuItem x:Name="MenuOpen" Header="_Open…" Click="OnOpen" />
         <MenuItem x:Name="RecentMenu" Header="Open _Recent" IsEnabled="False" />
+        <MenuItem x:Name="MenuCloseTab" Header="Close Ta_b" Click="OnCloseTab" />
         <Separator />
         <MenuItem x:Name="MenuSave" Header="_Save" Click="OnSave" />
         <MenuItem x:Name="MenuSaveAs" Header="Save _As…" Click="OnSaveAs" />
@@ -210,6 +211,16 @@
           <Path Data="M3 8 H13" />
         </Button>
       </StackPanel>
+    </Border>
+
+    <Border x:Name="TabStripBorder"
+            DockPanel.Dock="Top"
+            IsVisible="False"
+            Background="{DynamicResource ChromeBackground}"
+            BorderBrush="{DynamicResource ChromeBorder}"
+            BorderThickness="0,0,0,1"
+            Padding="8,4">
+      <StackPanel x:Name="TabStrip" Orientation="Horizontal" Spacing="2" />
     </Border>
 
     <Border DockPanel.Dock="Bottom"

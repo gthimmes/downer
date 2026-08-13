@@ -301,6 +301,112 @@ public class MainWindowUiTests
         CleanClose(window);
     }
 
+    private static string TempFile(string content)
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"downer-tab-{Guid.NewGuid():N}.md");
+        File.WriteAllText(path, content);
+        return path;
+    }
+
+    [AvaloniaFact]
+    public async Task Files_open_in_separate_tabs_and_switching_works()
+    {
+        var window = OpenWindow();
+        var a = TempFile("alpha content");
+        var b = TempFile("beta content");
+        try
+        {
+            await window.LoadFileAsync(a); // reuses the pristine welcome tab
+            await window.LoadFileAsync(b); // gets its own tab
+
+            Assert.Equal(2, window.Tabs.Count);
+            Assert.Equal("beta content", window.Editor.Text);
+            Assert.True(window.TabStripBorder.IsVisible);
+
+            window.ActivateTab(window.Tabs[0]);
+            Assert.Equal("alpha content", window.Editor.Text);
+
+            // Opening an already-open path re-activates instead of duplicating.
+            await window.LoadFileAsync(b);
+            Assert.Equal(2, window.Tabs.Count);
+            Assert.Equal("beta content", window.Editor.Text);
+
+            CleanClose(window);
+        }
+        finally
+        {
+            File.Delete(a);
+            File.Delete(b);
+        }
+    }
+
+    [AvaloniaFact]
+    public void Ctrl_W_closes_tabs_and_the_last_tab_is_replaced_fresh()
+    {
+        var window = OpenWindow();
+        var first = window.ActiveTab;
+        window.ActivateTab(window.AddTab());
+        Assert.Equal(2, window.Tabs.Count);
+
+        window.KeyPressQwerty(PhysicalKey.W, RawInputModifiers.Control);
+        Dispatcher.UIThread.RunJobs();
+        Assert.Single(window.Tabs);
+        Assert.Same(first, window.ActiveTab);
+        Assert.False(window.TabStripBorder.IsVisible);
+
+        // Closing the last (clean) tab swaps in a fresh untitled document.
+        window.KeyPressQwerty(PhysicalKey.W, RawInputModifiers.Control);
+        Dispatcher.UIThread.RunJobs();
+        Assert.Single(window.Tabs);
+        Assert.Equal("", window.Editor.Text);
+
+        CleanClose(window);
+    }
+
+    [AvaloniaFact]
+    public void Ctrl_Tab_cycles_between_tabs()
+    {
+        var window = OpenWindow();
+        var first = window.ActiveTab;
+        var second = window.AddTab();
+        window.ActivateTab(second);
+
+        window.KeyPressQwerty(PhysicalKey.Tab, RawInputModifiers.Control);
+        Assert.Same(first, window.ActiveTab);
+
+        window.KeyPressQwerty(PhysicalKey.Tab, RawInputModifiers.Control | RawInputModifiers.Shift);
+        Assert.Same(second, window.ActiveTab);
+
+        CleanClose(window);
+    }
+
+    [AvaloniaFact]
+    public async Task All_tabs_reopen_on_startup_with_the_front_tab_active()
+    {
+        var a = TempFile("# doc a");
+        var b = TempFile("# doc b");
+        try
+        {
+            var first = OpenWindow();
+            await first.LoadFileAsync(a);
+            await first.LoadFileAsync(b);
+            first.ActivateTab(first.Tabs[0]); // put doc a in front
+            first.Close();
+
+            var second = new MainWindow(); // same settings dir on purpose
+            second.Show();
+            PumpUntil(() => second.Tabs.Count == 2 && second.Editor.Text.Contains("doc a"));
+
+            Assert.Equal("# doc a", second.Editor.Text);
+            CleanClose(second);
+        }
+        finally
+        {
+            File.Delete(a);
+            File.Delete(b);
+        }
+    }
+
     [AvaloniaFact]
     public void Window_renders_a_real_frame()
     {
