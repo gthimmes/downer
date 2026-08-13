@@ -154,6 +154,27 @@ public class MainWindowUiTests
     }
 
     [AvaloniaFact]
+    public void Toggling_a_task_checkbox_flips_its_state()
+    {
+        var window = OpenWindow();
+        window.Editor.Document.Text = "line one\n- [ ] milk\n- [x] eggs";
+        Dispatcher.UIThread.RunJobs();
+
+        var milk = window.Editor.Text.IndexOf("[ ]") + 1;
+        Assert.True(window.ToggleCheckboxAt(milk));
+        Assert.Contains("- [x] milk", window.Editor.Text);
+
+        var eggs = window.Editor.Text.IndexOf("[x] eggs") + 1;
+        Assert.True(window.ToggleCheckboxAt(eggs));
+        Assert.Contains("- [ ] eggs", window.Editor.Text);
+
+        // Plain text never toggles.
+        Assert.False(window.ToggleCheckboxAt(2));
+
+        CleanClose(window);
+    }
+
+    [AvaloniaFact]
     public void Window_renders_a_real_frame()
     {
         var window = OpenWindow();

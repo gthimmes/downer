@@ -10,6 +10,48 @@ public partial class MainWindow
     {
         // Tunnel so we can claim Enter before the editor inserts a plain newline.
         Editor.TextArea.AddHandler(KeyDownEvent, OnEditorKeyDown, RoutingStrategies.Tunnel);
+        // Tunnel so a checkbox click toggles instead of just moving the caret.
+        Editor.TextArea.TextView.AddHandler(PointerPressedEvent, OnEditorPointerPressed, RoutingStrategies.Tunnel);
+    }
+
+    private void OnEditorPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (_editorMode != EditorSurfaceMode.Rich || e.KeyModifiers != KeyModifiers.None)
+            return;
+
+        var point = e.GetCurrentPoint(Editor);
+        if (!point.Properties.IsLeftButtonPressed || e.ClickCount != 1)
+            return;
+
+        var position = Editor.GetPositionFromPoint(point.Position);
+        if (position is null)
+            return;
+
+        var offset = Editor.Document.GetOffset(position.Value.Location);
+
+        // On the revealed (caret) line the raw "[ ]" text is visible; clicks there
+        // should place the caret for editing, not toggle.
+        if (Editor.Document.GetLineByOffset(offset).LineNumber == _revealedLine)
+            return;
+
+        if (ToggleCheckboxAt(offset))
+            e.Handled = true;
+    }
+
+    /// <summary>Flips the task checkbox whose rendered glyph covers <paramref name="offset"/>. Returns true when toggled.</summary>
+    internal bool ToggleCheckboxAt(int offset)
+    {
+        var lineNumber = Editor.Document.GetLineByOffset(Math.Clamp(offset, 0, Editor.Document.TextLength)).LineNumber;
+        var fenceState = lineNumber - 1 < _lastFenceStates.Length
+            ? _lastFenceStates[lineNumber - 1]
+            : FenceLineState.Outside;
+
+        var hit = TaskCheckboxes.HitTest(Editor.Text, offset, fenceState);
+        if (hit is null)
+            return false;
+
+        Editor.Document.Replace(hit.StateCharOffset, 1, hit.NewState.ToString());
+        return true;
     }
 
     private void OnEditorKeyDown(object? sender, KeyEventArgs e)
