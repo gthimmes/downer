@@ -1,7 +1,9 @@
-﻿using Avalonia.Headless;
+﻿using Avalonia.Controls;
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Input;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Downer.Services;
 using Downer.Views;
 using Xunit;
@@ -209,6 +211,17 @@ public class MainWindowUiTests
         CleanClose(window);
     }
 
+    /// <summary>Flushes dispatcher jobs and forces headless render/layout ticks.</summary>
+    private static void Pump()
+    {
+        for (var i = 0; i < 3; i++)
+        {
+            Dispatcher.UIThread.RunJobs();
+            AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+        }
+        Dispatcher.UIThread.RunJobs();
+    }
+
     private static void PumpUntil(Func<bool> condition)
     {
         for (var i = 0; i < 100 && !condition(); i++)
@@ -261,6 +274,31 @@ public class MainWindowUiTests
 
         Assert.Contains("Welcome to Downer", second.Editor.Text);
         CleanClose(second);
+    }
+
+    [AvaloniaFact]
+    public void Scroll_sync_wiring_survives_all_view_modes()
+    {
+        // The proportional math is unit-tested in ScrollSyncTests; the headless
+        // preview never lays out real content, so this exercises the wiring only.
+        var window = OpenWindow();
+        window.Editor.Document.Text =
+            string.Join("\n", Enumerable.Range(1, 400).Select(i => $"line {i}"));
+
+        window.KeyPressQwerty(PhysicalKey.Digit2, RawInputModifiers.Control); // split
+        window.RefreshPreview();
+        Pump();
+        window.SyncPreviewScroll();
+        window.SyncEditorToPreview();
+
+        window.KeyPressQwerty(PhysicalKey.Digit1, RawInputModifiers.Control); // editor only
+        window.SyncPreviewScroll();
+        window.SyncEditorToPreview();
+
+        var scroller = window.Preview.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+        Assert.NotNull(scroller); // the preview scroller the sync binds to exists
+
+        CleanClose(window);
     }
 
     [AvaloniaFact]

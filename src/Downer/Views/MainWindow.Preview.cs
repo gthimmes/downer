@@ -39,32 +39,89 @@ public partial class MainWindow
         _previewTimer.Start();
     }
 
-    private void RefreshPreview()
+    internal void RefreshPreview()
     {
         if (_viewMode != ViewMode.EditorOnly)
             Preview.Markdown = Editor.Text;
         UpdateCountsStatus();
     }
 
-    // ---- Scroll sync (editor -> preview, proportional) ----
+    // ---- Scroll sync (bidirectional, proportional) ----
+    // The pane under the pointer is the driver: the editor pushes to the preview
+    // unless the pointer sits over the preview, and vice versa. A reentrancy flag
+    // stops the panes from ping-ponging within one sync.
 
-    private void SyncPreviewScroll()
+    private bool _syncingScroll;
+
+    private void EnsurePreviewScroller()
     {
-        if (_viewMode != ViewMode.Split)
+        if (_previewScroller is not null)
             return;
 
-        _previewScroller ??= Preview.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+        _previewScroller = Preview.GetVisualDescendants().OfType<ScrollViewer>().FirstOrDefault();
+        if (_previewScroller is not null)
+            _previewScroller.ScrollChanged += OnPreviewScrolled;
+    }
+
+    internal void SyncPreviewScroll()
+    {
+        if (_viewMode != ViewMode.Split || _syncingScroll || Preview.IsPointerOver)
+            return;
+
+        EnsurePreviewScroller();
         if (_previewScroller is null)
             return;
 
         var textView = Editor.TextArea.TextView;
-        var scrollableHeight = textView.DocumentHeight - textView.Bounds.Height;
-        if (scrollableHeight <= 0)
+        var target = Core.ScrollSync.MapOffset(
+            textView.ScrollOffset.Y,
+            textView.DocumentHeight - textView.Bounds.Height,
+            _previewScroller.Extent.Height - _previewScroller.Viewport.Height);
+        if (target is null || Math.Abs(target.Value - _previewScroller.Offset.Y) < 0.5)
             return;
 
-        var fraction = Math.Clamp(textView.ScrollOffset.Y / scrollableHeight, 0, 1);
-        var target = fraction * Math.Max(0, _previewScroller.Extent.Height - _previewScroller.Viewport.Height);
-        _previewScroller.Offset = new Vector(_previewScroller.Offset.X, target);
+        _syncingScroll = true;
+        try
+        {
+            _previewScroller.Offset = new Vector(_previewScroller.Offset.X, target.Value);
+        }
+        finally
+        {
+            _syncingScroll = false;
+        }
+    }
+
+    private void OnPreviewScrolled(object? sender, ScrollChangedEventArgs e)
+    {
+        if (_viewMode != ViewMode.Split || _syncingScroll || !Preview.IsPointerOver)
+            return;
+
+        SyncEditorToPreview();
+    }
+
+    /// <summary>Mirrors the preview's scroll fraction onto the editor.</summary>
+    internal void SyncEditorToPreview()
+    {
+        if (_previewScroller is null)
+            return;
+
+        var textView = Editor.TextArea.TextView;
+        var target = Core.ScrollSync.MapOffset(
+            _previewScroller.Offset.Y,
+            _previewScroller.Extent.Height - _previewScroller.Viewport.Height,
+            textView.DocumentHeight - textView.Bounds.Height);
+        if (target is null || Math.Abs(target.Value - textView.ScrollOffset.Y) < 0.5)
+            return;
+
+        _syncingScroll = true;
+        try
+        {
+            Editor.ScrollToVerticalOffset(target.Value);
+        }
+        finally
+        {
+            _syncingScroll = false;
+        }
     }
 
     // ---- View modes ----
@@ -107,6 +164,8 @@ public partial class MainWindow
 
         if (mode != ViewMode.EditorOnly)
             RefreshPreview();
+        if (mode == ViewMode.Split)
+            Dispatcher.UIThread.Post(EnsurePreviewScroller, DispatcherPriority.Loaded);
         if (mode != ViewMode.PreviewOnly)
             Editor.Focus();
     }
